@@ -5,7 +5,7 @@ mod leds;
 mod mic;
 mod server;
 
-use esp_idf_svc::sys::EspError;
+use esp_idf_svc::{hal::prelude::Peripherals, sys::EspError};
 
 #[no_mangle]
 fn main() -> Result<(), EspError> {
@@ -18,5 +18,8 @@ fn main() -> Result<(), EspError> {
 
     log::info!("Hello, world!3");
 
-    leds::leds_controller::LedsController::new()?.update()
+    let peripherals = Peripherals::take()?;
+    let pin = peripherals.pins.gpio23;
+    let channel = peripherals.rmt.channel0;
+    leds::leds_controller::LedsController::new(channel, pin)?.update()
 }

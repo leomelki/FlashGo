@@ -1,12 +1,14 @@
 use crate::leds::color::Color;
 use crate::leds::led::Led;
 
-const LED_COUNT: usize = 8 * 8;
-
-use esp_idf_svc::hal::peripherals::Peripherals;
+use esp_idf_svc::hal::gpio::OutputPin;
+use esp_idf_svc::hal::peripheral::Peripheral;
+use esp_idf_svc::hal::rmt::RmtChannel;
 use esp_idf_svc::sys::EspError;
 
 use super::driver::Ws2812Esp32RmtDriver;
+
+const LED_COUNT: usize = 8 * 8;
 
 pub struct LedsController<'a> {
     encoder_driver: Ws2812Esp32RmtDriver<'a>,
@@ -14,14 +16,13 @@ pub struct LedsController<'a> {
 }
 
 impl<'a> LedsController<'a> {
-    pub(crate) fn new() -> Result<Self, EspError> {
-        let peripherals = Peripherals::take()?;
-        let led = peripherals.pins.gpio23;
-        let channel = peripherals.rmt.channel0;
-
+    pub(crate) fn new<C: RmtChannel>(
+        channel: impl Peripheral<P = C> + 'a,
+        pin: impl Peripheral<P = impl OutputPin> + 'a,
+    ) -> Result<Self, EspError> {
         Ok(LedsController {
             leds: [Led::new(); LED_COUNT],
-            encoder_driver: Ws2812Esp32RmtDriver::new(channel, led)?,
+            encoder_driver: Ws2812Esp32RmtDriver::new(channel, pin)?,
         })
     }
 
@@ -33,12 +34,8 @@ impl<'a> LedsController<'a> {
             }))
     }
 
-    pub fn set_color(&mut self, index: usize, color: &'a Color) {
-        self.leds[index].set_color(color);
-    }
-
-    pub fn get_led(&self, index: usize) -> Led {
-        self.leds[index]
+    pub fn get_led(&self, x: usize, y: usize) -> Led {
+        self.leds[y << 3 | x >> 3]
     }
 
     pub fn get_leds(&self) -> &[Led; LED_COUNT] {
