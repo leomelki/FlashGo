@@ -1,0 +1,2124 @@
+{
+    "version": 1,
+    "author": "Brewster Ben",
+    "editor": "wokwi",
+    "parts": [
+        {
+            "type": "board-esp32-devkit-c-v4",
+            "id": "esp",
+            "top": -76.8,
+            "left": 523.24,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb1",
+            "top": -89.9,
+            "left": 229.4,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb2",
+            "top": -89.9,
+            "left": 267.8,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb3",
+            "top": -89.9,
+            "left": 306.2,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb4",
+            "top": -89.9,
+            "left": 344.6,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb5",
+            "top": -89.9,
+            "left": 191,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb6",
+            "top": -89.9,
+            "left": 143,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb7",
+            "top": -89.9,
+            "left": 95,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb8",
+            "top": -89.9,
+            "left": 47,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb9",
+            "top": 25.3,
+            "left": 143,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb10",
+            "top": 140.5,
+            "left": 229.4,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb11",
+            "top": 140.5,
+            "left": 191,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb12",
+            "top": 140.5,
+            "left": 143,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb13",
+            "top": 140.5,
+            "left": 95,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb14",
+            "top": 102.1,
+            "left": 229.4,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb15",
+            "top": 102.1,
+            "left": 95,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb16",
+            "top": 63.7,
+            "left": 143,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb17",
+            "top": 140.5,
+            "left": 47,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb18",
+            "top": 25.3,
+            "left": 95,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb19",
+            "top": -13.1,
+            "left": 95,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb20",
+            "top": -13.1,
+            "left": 143,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb21",
+            "top": -13.1,
+            "left": 191,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb22",
+            "top": -13.1,
+            "left": 229.4,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb23",
+            "top": 178.9,
+            "left": 267.8,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb24",
+            "top": 140.5,
+            "left": 267.8,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb25",
+            "top": 102.1,
+            "left": 267.8,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb26",
+            "top": 63.7,
+            "left": 267.8,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb27",
+            "top": -51.5,
+            "left": 267.8,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb28",
+            "top": -51.5,
+            "left": 229.4,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb29",
+            "top": -51.5,
+            "left": 191,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb30",
+            "top": -51.5,
+            "left": 143,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb31",
+            "top": 25.3,
+            "left": 267.8,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb32",
+            "top": -13.1,
+            "left": 267.8,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb33",
+            "top": 178.9,
+            "left": 306.2,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb34",
+            "top": 140.5,
+            "left": 306.2,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb35",
+            "top": 102.1,
+            "left": 306.2,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb36",
+            "top": 63.7,
+            "left": 306.2,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb37",
+            "top": 25.3,
+            "left": 306.2,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb38",
+            "top": 178.9,
+            "left": 344.6,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb39",
+            "top": 140.5,
+            "left": 344.6,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb40",
+            "top": 102.1,
+            "left": 344.6,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb41",
+            "top": 63.7,
+            "left": 344.6,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb42",
+            "top": 25.3,
+            "left": 344.6,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb43",
+            "top": -13.1,
+            "left": 306.2,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb44",
+            "top": -13.1,
+            "left": 344.6,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb45",
+            "top": -51.5,
+            "left": 344.6,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb46",
+            "top": -51.5,
+            "left": 306.2,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb47",
+            "top": -51.5,
+            "left": 95,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb48",
+            "top": -51.5,
+            "left": 47,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb49",
+            "top": 102.1,
+            "left": 191,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb50",
+            "top": 102.1,
+            "left": 143,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb51",
+            "top": 63.7,
+            "left": 229.4,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb52",
+            "top": 63.7,
+            "left": 191,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb53",
+            "top": 25.3,
+            "left": 229.4,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb54",
+            "top": 25.3,
+            "left": 191,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb55",
+            "top": 63.7,
+            "left": 95,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb56",
+            "top": 178.9,
+            "left": 47,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb57",
+            "top": 102.1,
+            "left": 47,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb58",
+            "top": 63.7,
+            "left": 47,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb59",
+            "top": 25.3,
+            "left": 47,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb60",
+            "top": -13.1,
+            "left": 47,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb61",
+            "top": 178.9,
+            "left": 229.4,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb62",
+            "top": 178.9,
+            "left": 191,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb63",
+            "top": 178.9,
+            "left": 143,
+            "attrs": {}
+        },
+        {
+            "type": "wokwi-neopixel",
+            "id": "rgb64",
+            "top": 178.9,
+            "left": 95,
+            "attrs": {}
+        }
+    ],
+    "connections": [
+        [
+            "esp:TX",
+            "$serialMonitor:RX",
+            "",
+            []
+        ],
+        [
+            "esp:RX",
+            "$serialMonitor:TX",
+            "",
+            []
+        ],
+        [
+            "rgb4:DOUT",
+            "rgb3:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb3:DOUT",
+            "rgb2:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb2:DOUT",
+            "rgb1:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb1:DOUT",
+            "rgb5:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb5:DOUT",
+            "rgb6:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb6:DOUT",
+            "rgb7:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb7:DOUT",
+            "rgb8:DIN",
+            "green",
+            [
+                "h-9.6",
+                "v-10.5"
+            ]
+        ],
+        [
+            "rgb8:DOUT",
+            "rgb48:DIN",
+            "green",
+            [
+                "v8.7",
+                "h19.2",
+                "v19.2"
+            ]
+        ],
+        [
+            "rgb48:DOUT",
+            "rgb47:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h39.2"
+            ]
+        ],
+        [
+            "rgb47:DOUT",
+            "rgb30:DIN",
+            "green",
+            [
+                "v8.7",
+                "h38.4",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb30:DOUT",
+            "rgb29:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h39.2"
+            ]
+        ],
+        [
+            "rgb29:DOUT",
+            "rgb28:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb28:DOUT",
+            "rgb27:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb27:DOUT",
+            "rgb46:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb46:DOUT",
+            "rgb45:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb45:DOUT",
+            "rgb44:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb44:DOUT",
+            "rgb43:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb43:DOUT",
+            "rgb32:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb32:DOUT",
+            "rgb22:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb22:DOUT",
+            "rgb21:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb21:DOUT",
+            "rgb20:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb20:DOUT",
+            "rgb19:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb19:DOUT",
+            "rgb60:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb60:DOUT",
+            "rgb59:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb59:DOUT",
+            "rgb18:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h39.2"
+            ]
+        ],
+        [
+            "rgb18:DOUT",
+            "rgb9:DIN",
+            "green",
+            [
+                "v8.7",
+                "h38.4",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb9:DOUT",
+            "rgb54:DIN",
+            "green",
+            [
+                "v8.7",
+                "h38.4",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb54:DOUT",
+            "rgb53:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb53:DOUT",
+            "rgb31:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb31:DOUT",
+            "rgb37:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb37:DOUT",
+            "rgb42:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb42:DOUT",
+            "rgb41:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb41:DOUT",
+            "rgb36:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb36:DOUT",
+            "rgb26:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb26:DOUT",
+            "rgb51:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb51:DOUT",
+            "rgb52:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb52:DOUT",
+            "rgb16:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb16:DOUT",
+            "rgb55:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb55:DOUT",
+            "rgb58:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb58:DOUT",
+            "rgb57:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb57:DOUT",
+            "rgb15:DIN",
+            "green",
+            [
+                "v18.3",
+                "h28.8",
+                "v-38.4",
+                "h39.2"
+            ]
+        ],
+        [
+            "rgb15:DOUT",
+            "rgb50:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h39.2"
+            ]
+        ],
+        [
+            "rgb50:DOUT",
+            "rgb49:DIN",
+            "green",
+            [
+                "v8.7",
+                "h38.4",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb49:DOUT",
+            "rgb14:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb14:DOUT",
+            "rgb25:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb25:DOUT",
+            "rgb35:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb35:DOUT",
+            "rgb40:DIN",
+            "green",
+            [
+                "v8.7",
+                "h28.8",
+                "v-28.8",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb40:DOUT",
+            "rgb39:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb39:DOUT",
+            "rgb34:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb34:DOUT",
+            "rgb24:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb24:DOUT",
+            "rgb10:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb10:DOUT",
+            "rgb11:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb11:DOUT",
+            "rgb12:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb12:DOUT",
+            "rgb13:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb13:DOUT",
+            "rgb17:DIN",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb17:DOUT",
+            "rgb56:DIN",
+            "green",
+            [
+                "v8.7",
+                "h20"
+            ]
+        ],
+        [
+            "rgb56:DOUT",
+            "rgb64:DIN",
+            "green",
+            [
+                "v18.3",
+                "h38.4",
+                "v-38.4",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb64:DOUT",
+            "rgb63:DIN",
+            "green",
+            [
+                "h9.6",
+                "v18.3",
+                "h28.8",
+                "v-38.4",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb63:DOUT",
+            "rgb62:DIN",
+            "green",
+            [
+                "v18.3",
+                "h38.4",
+                "v-38.4",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb62:DOUT",
+            "rgb61:DIN",
+            "green",
+            [
+                "v18.3",
+                "h28.8",
+                "v-38.4",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb61:DOUT",
+            "rgb23:DIN",
+            "green",
+            [
+                "v18.3",
+                "h28.8",
+                "v-38.4",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb23:DOUT",
+            "rgb33:DIN",
+            "green",
+            [
+                "v18.3",
+                "h28.8",
+                "v-38.4",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb33:DOUT",
+            "rgb38:DIN",
+            "green",
+            [
+                "v18.3",
+                "h28.8",
+                "v-38.4",
+                "h29.6"
+            ]
+        ],
+        [
+            "rgb4:VDD",
+            "rgb3:VDD",
+            "green",
+            [
+                "h0",
+                "v-19.2",
+                "h-38.4"
+            ]
+        ],
+        [
+            "rgb3:VDD",
+            "rgb2:VDD",
+            "green",
+            [
+                "h0",
+                "v-19.2",
+                "h-38.4"
+            ]
+        ],
+        [
+            "rgb2:VDD",
+            "rgb1:VDD",
+            "green",
+            [
+                "h0",
+                "v-19.2",
+                "h-38.4"
+            ]
+        ],
+        [
+            "rgb1:VDD",
+            "rgb5:VDD",
+            "green",
+            [
+                "h0",
+                "v-19.2",
+                "h-38.4"
+            ]
+        ],
+        [
+            "rgb5:VDD",
+            "rgb6:VDD",
+            "green",
+            [
+                "h0",
+                "v-19.2",
+                "h-48"
+            ]
+        ],
+        [
+            "rgb6:VDD",
+            "rgb7:VDD",
+            "green",
+            [
+                "h0",
+                "v-19.2",
+                "h-48"
+            ]
+        ],
+        [
+            "rgb7:VDD",
+            "rgb8:VDD",
+            "green",
+            [
+                "h0",
+                "v-19.2",
+                "h-48"
+            ]
+        ],
+        [
+            "rgb45:VDD",
+            "rgb44:VDD",
+            "green",
+            [
+                "h0",
+                "v28.8"
+            ]
+        ],
+        [
+            "rgb44:VDD",
+            "rgb42:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb42:VDD",
+            "rgb41:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb41:VDD",
+            "rgb40:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb40:VDD",
+            "rgb39:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb39:VDD",
+            "rgb38:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb46:VDD",
+            "rgb43:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb43:VDD",
+            "rgb37:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb37:VDD",
+            "rgb36:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb36:VDD",
+            "rgb35:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb35:VDD",
+            "rgb34:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb34:VDD",
+            "rgb33:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb27:VDD",
+            "rgb32:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb32:VDD",
+            "rgb31:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb31:VDD",
+            "rgb26:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb26:VDD",
+            "rgb25:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb25:VDD",
+            "rgb24:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb24:VDD",
+            "rgb23:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb28:VDD",
+            "rgb22:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb22:VDD",
+            "rgb53:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb53:VDD",
+            "rgb51:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb51:VDD",
+            "rgb14:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb14:VDD",
+            "rgb10:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb10:VDD",
+            "rgb61:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb29:VDD",
+            "rgb21:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb21:VDD",
+            "rgb54:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb54:VDD",
+            "rgb52:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb52:VDD",
+            "rgb49:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb49:VDD",
+            "rgb11:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb11:VDD",
+            "rgb62:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb30:VDD",
+            "rgb20:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb20:VDD",
+            "rgb9:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb9:VDD",
+            "rgb16:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb16:VDD",
+            "rgb50:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb50:VDD",
+            "rgb12:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb12:VDD",
+            "rgb63:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb47:VDD",
+            "rgb19:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb19:VDD",
+            "rgb18:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb18:VDD",
+            "rgb55:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb55:VDD",
+            "rgb15:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb15:VDD",
+            "rgb13:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb13:VDD",
+            "rgb64:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb48:VDD",
+            "rgb60:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb60:VDD",
+            "rgb59:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb59:VDD",
+            "rgb58:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb58:VDD",
+            "rgb57:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb57:VDD",
+            "rgb17:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb17:VDD",
+            "rgb56:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb8:VDD",
+            "rgb48:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb7:VDD",
+            "rgb47:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb6:VDD",
+            "rgb30:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb5:VDD",
+            "rgb29:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb1:VDD",
+            "rgb28:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb2:VDD",
+            "rgb27:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb3:VDD",
+            "rgb46:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb4:VDD",
+            "rgb45:VDD",
+            "green",
+            [
+                "h0"
+            ]
+        ],
+        [
+            "rgb4:VSS",
+            "rgb3:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb3:VSS",
+            "rgb2:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb2:VSS",
+            "rgb1:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb1:VSS",
+            "rgb5:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb5:VSS",
+            "rgb6:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb6:VSS",
+            "rgb7:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb7:VSS",
+            "rgb8:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb4:VSS",
+            "rgb45:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb45:VSS",
+            "rgb44:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb44:VSS",
+            "rgb42:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb42:VSS",
+            "rgb41:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb41:VSS",
+            "rgb40:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb40:VSS",
+            "rgb39:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb39:VSS",
+            "rgb38:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb3:VSS",
+            "rgb46:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb46:VSS",
+            "rgb43:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb43:VSS",
+            "rgb37:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb37:VSS",
+            "rgb36:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb36:VSS",
+            "rgb35:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb35:VSS",
+            "rgb34:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb34:VSS",
+            "rgb33:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb2:VSS",
+            "rgb27:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb27:VSS",
+            "rgb32:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb32:VSS",
+            "rgb31:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb31:VSS",
+            "rgb26:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb26:VSS",
+            "rgb25:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb25:VSS",
+            "rgb24:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb24:VSS",
+            "rgb23:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb61:VSS",
+            "rgb10:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb10:VSS",
+            "rgb14:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb14:VSS",
+            "rgb51:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb51:VSS",
+            "rgb53:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb53:VSS",
+            "rgb22:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb22:VSS",
+            "rgb28:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb28:VSS",
+            "rgb1:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb5:VSS",
+            "rgb29:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb29:VSS",
+            "rgb21:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb21:VSS",
+            "rgb54:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb54:VSS",
+            "rgb52:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb52:VSS",
+            "rgb49:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb49:VSS",
+            "rgb11:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb11:VSS",
+            "rgb62:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb63:VSS",
+            "rgb12:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb12:VSS",
+            "rgb50:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb50:VSS",
+            "rgb16:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb16:VSS",
+            "rgb9:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb9:VSS",
+            "rgb20:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb20:VSS",
+            "rgb30:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb30:VSS",
+            "rgb6:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb7:VSS",
+            "rgb47:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb47:VSS",
+            "rgb19:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb19:VSS",
+            "rgb18:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb18:VSS",
+            "rgb55:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb55:VSS",
+            "rgb15:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb15:VSS",
+            "rgb13:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb13:VSS",
+            "rgb64:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb56:VSS",
+            "rgb17:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb17:VSS",
+            "rgb57:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb57:VSS",
+            "rgb58:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb58:VSS",
+            "rgb59:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb59:VSS",
+            "rgb60:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb60:VSS",
+            "rgb48:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb48:VSS",
+            "rgb8:VSS",
+            "green",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "rgb4:DIN",
+            "esp:23",
+            "blue",
+            [
+                "v-19.2",
+                "h287.2",
+                "v67.2"
+            ]
+        ],
+        [
+            "rgb4:VSS",
+            "esp:GND.2",
+            "black",
+            [
+                "v-10.5",
+                "h277.6",
+                "v38.4"
+            ]
+        ],
+        [
+            "rgb4:VDD",
+            "esp:3V3",
+            "red",
+            [
+                "h0",
+                "v-28.8",
+                "h144",
+                "v67.2"
+            ]
+        ]
+    ],
+    "dependencies": {}
+}
