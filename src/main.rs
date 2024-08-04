@@ -21,5 +21,15 @@ fn main() -> Result<(), EspError> {
     let peripherals = Peripherals::take()?;
     let pin = peripherals.pins.gpio23;
     let channel = peripherals.rmt.channel0;
-    leds::leds_controller::LedsController::new(channel, pin)?.update()
+    let mut controller = leds::leds_controller::LedsController::new(channel, pin)?;
+
+    controller.set_color(3, 1, leds::color::Color::RED);
+    controller.set_color(3, 2, leds::color::Color::RED);
+    controller.set_color(3, 3, leds::color::Color::RED);
+    controller.set_color(3, 4, leds::color::Color::RED);
+    controller.set_color(3, 5, leds::color::Color::RED);
+    controller.set_color(2, 5, leds::color::Color::RED);
+    controller.set_color(1, 5, leds::color::Color::RED);
+    controller.set_color(0, 0, leds::color::Color::RED);
+    controller.update()
 }
