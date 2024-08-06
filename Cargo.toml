@@ -42,6 +42,7 @@ embassy = [
 log = { version = "0.4", default-features = false }
 esp-idf-svc = { version = "0.49", default-features = false }
 micropb = "0.1.0"
+microfft = "0.6.0"
 
 [build-dependencies]
 embuild = "0.32.0"

@@ -1,6 +1,7 @@
 #![no_std]
 #![no_main]
 
+mod core;
 mod leds;
 mod mic;
 mod server;
