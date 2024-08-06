@@ -1,11 +1,13 @@
 #![no_std]
 #![no_main]
 
+mod consts;
 mod core;
 mod leds;
 mod mic;
 mod server;
 
+use esp_idf_svc::hal::adc::Adc;
 use esp_idf_svc::{hal::prelude::Peripherals, sys::EspError};
 
 #[no_mangle]
@@ -20,17 +22,20 @@ fn main() -> Result<(), EspError> {
     log::info!("Hello, world!3");
 
     let peripherals = Peripherals::take()?;
-    let pin = peripherals.pins.gpio23;
-    let channel = peripherals.rmt.channel0;
-    let mut controller = leds::leds_controller::LedsController::new(channel, pin)?;
+    let ledPin = peripherals.pins.gpio23;
+    let ledChannel = peripherals.rmt.channel0;
+    let micPin = peripherals.pins.gpio0;
+    let micChannel = peripherals.adc2;
+    let mut ledController = leds::leds_controller::LedsController::new(ledChannel, ledPin)?;
+    let mut mic = mic::Mic::new(micChannel, micPin);
 
-    controller.set_color(3, 1, leds::color::Color::RED);
-    controller.set_color(3, 2, leds::color::Color::RED);
-    controller.set_color(3, 3, leds::color::Color::RED);
-    controller.set_color(3, 4, leds::color::Color::RED);
-    controller.set_color(3, 5, leds::color::Color::RED);
-    controller.set_color(2, 5, leds::color::Color::RED);
-    controller.set_color(1, 5, leds::color::Color::RED);
-    controller.set_color(0, 0, leds::color::Color::RED);
-    controller.update()
+    ledController.set_color(3, 1, leds::color::Color::RED);
+    ledController.set_color(3, 2, leds::color::Color::RED);
+    ledController.set_color(3, 3, leds::color::Color::RED);
+    ledController.set_color(3, 4, leds::color::Color::RED);
+    ledController.set_color(3, 5, leds::color::Color::RED);
+    ledController.set_color(2, 5, leds::color::Color::RED);
+    ledController.set_color(1, 5, leds::color::Color::RED);
+    ledController.set_color(0, 0, leds::color::Color::RED);
+    ledController.update()
 }
