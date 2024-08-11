@@ -8,6 +8,7 @@ use esp_idf_svc::sys::EspError;
 use super::driver::Ws2812Esp32RmtDriver;
 
 const LED_COUNT: usize = 8 * 8;
+const BUFF: [usize; 500000] = [0; 500000];
 
 pub struct LedsController<'a> {
     encoder_driver: Ws2812Esp32RmtDriver<'a>,
@@ -29,7 +30,7 @@ impl<'a> LedsController<'a> {
         self.encoder_driver.write_blocking(
             self.colors
                 .iter()
-                .flat_map(|color: &Color| [color.green(), color.red(), color.blue()]),
+                .flat_map(|color: &Color| [color.green, color.red, color.blue]),
         )
     }
 
@@ -39,7 +40,7 @@ impl<'a> LedsController<'a> {
     pub fn set_color(&mut self, x: usize, y: usize, color: Color) {
         let final_y = 7 - y;
         let final_x = 7 - if final_y % 2 == 0 { x } else { 7 - x };
-        self.colors[final_x + final_y * 8].set(&color)
+        self.colors[final_x + final_y * 8] = color;
     }
     pub fn set_color_by_index(&mut self, index: usize, color: Color) {
         self.colors[index].set(&color)

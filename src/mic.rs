@@ -1,24 +1,42 @@
 use esp_idf_svc::hal::{
-    adc::continuous::{config::Config, *},
-    gpio::ADCPin,
+    adc::{
+        continuous::{config::Config, *},
+        Adc, ADC1,
+    },
+    delay::Delay,
+    i2s::I2S0,
     peripheral::Peripheral,
+    units::Hertz,
 };
 
-pub struct Mic {}
+pub struct Mic<'a> {
+    adc: AdcDriver<'a>,
+}
 
-impl Mic {
-    pub fn new<C: Adc>(
-        channel: impl Peripheral<P = C>,
-        pin: impl Peripheral<P = impl ADCPin>,
+impl<'a> Mic<'a> {
+    pub fn new(
+        adc: impl Peripheral<P = ADC1> + 'a,
+        i2s: impl Peripheral<P = I2S0> + 'a,
+        channels: impl AdcChannels<Adc = ADC1> + 'a,
     ) -> Self {
-        let mut adc = AdcDriver::new(pin, &Config::new().calibration(true))?;
-        Mic {}
+        let freq = Hertz(10000);
+        log::info!("Creating mic");
+        let adc = AdcDriver::new(
+            adc,
+            i2s,
+            &Config::new(), /*.sample_freq(freq)*/
+            channels,
+        )
+        .unwrap();
+
+        log::info!("Created mic");
+        Mic { adc }
     }
 
     fn start(&mut self) {
-        loop {
-            // Do something
-        }
+        // loop {
+        //     // Do something
+        // }
     }
 
     fn read_data(&self) {
@@ -27,6 +45,19 @@ impl Mic {
     }
 }
 
-pub extern "C" fn start_task(mic: *mut core::ffi::c_void) {
-    mic.start();
+pub extern "C" fn start_task(micPtr: *mut core::ffi::c_void) {
+    log::info!("yay");
+    // mic.start();
+    let mic: &mut Mic = unsafe { &mut *(micPtr as *mut Mic) };
+    let delay = Delay::new(1);
+    log::info!("st");
+    mic.adc.start();
+    log::info!("started");
+    let mut buf = [AdcMeasurement::default(); 100];
+    loop {
+        delay.delay_ms(500);
+        log::info!("read");
+        let value = mic.adc.read(&mut buf, 10000).unwrap();
+        log::info!("Value is {}", value);
+    }
 }
