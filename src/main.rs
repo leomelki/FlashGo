@@ -7,16 +7,14 @@ mod leds;
 mod mic;
 mod server;
 
-use ::core::ffi::{c_void, CStr, FromBytesWithNulError};
 use core::Core;
-use esp_idf_svc::hal::cpu;
-use esp_idf_svc::hal::delay::Delay;
-use esp_idf_svc::hal::task;
 
-use esp_idf_svc::sys::TaskHandle_t;
-use esp_idf_svc::{hal::prelude::Peripherals, sys::EspError};
+use esp_idf_svc::hal::delay::Delay;
+use esp_idf_svc::hal::peripheral::Peripheral;
+
+use esp_idf_svc::hal::peripherals::Peripherals;
+use esp_idf_svc::sys::EspError;
 use leds::leds_controller::LedsController;
-use mic::Mic;
 
 #[no_mangle]
 fn main() -> Result<(), EspError> {
@@ -29,18 +27,18 @@ fn main() -> Result<(), EspError> {
 
     log::info!("Hello, world!3");
 
-    let peripherals = Peripherals::take()?;
-    let ledPin = peripherals.pins.gpio23;
-    let ledChannel = peripherals.rmt.channel0;
+    let mut peripherals = Peripherals::take()?;
+    let ledPin = unsafe { peripherals.pins.gpio23.clone_unchecked() };
+    let ledChannel = unsafe { peripherals.rmt.channel0.clone_unchecked() };
     let mut ledController = LedsController::new(ledChannel, ledPin)?;
 
-    let micPin = peripherals.pins.gpio36;
-    let i2s = peripherals.i2s0;
-    let micChannel = peripherals.adc1;
+    // let micPin = peripherals.pins.gpio36;
+    // let i2s = peripherals.i2s0;
+    // let micChannel = peripherals.adc1;
 
-    let mut mic = mic::Mic::new(micChannel, i2s, micPin);
+    let mut mic = mic::Mic::new(peripherals.pins.gpio33, peripherals.adc1)?;
     let mut core = Core::new(&mut ledController, &mic)?;
-    // core.start();
+    core.start();
 
     ledController.set_color(3, 1, leds::color::Color::RED);
     ledController.set_color(3, 2, leds::color::Color::RED);

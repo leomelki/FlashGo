@@ -11,6 +11,13 @@
             "attrs": {}
         },
         {
+            "type": "wokwi-microphone",
+            "id": "mic1",
+            "top": -7.38,
+            "left": 417.39,
+            "attrs": {}
+        },
+        {
             "type": "wokwi-neopixel",
             "id": "rgb1",
             "top": -89.9,
@@ -2118,7 +2125,26 @@
                 "h144",
                 "v67.2"
             ]
+        ],
+        [
+            "mic1:2",
+            "esp:GND.2",
+            "black",
+            [
+                "v0"
+            ]
+        ],
+        [
+            "mic1:1",
+            "esp:33",
+            "green",
+            [
+                "v0"
+            ]
         ]
     ],
+    "serialMonitor": {
+        "display": "plotter"
+    },
     "dependencies": {}
 }

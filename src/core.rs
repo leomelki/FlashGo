@@ -3,19 +3,26 @@ use crate::mic::Mic;
 use crate::{consts, mic};
 use core::ffi::{c_void, CStr, FromBytesWithNulError};
 use esp_idf_svc::hal::cpu;
+use esp_idf_svc::hal::gpio::ADCPin;
 use esp_idf_svc::hal::task;
 use esp_idf_svc::sys::{EspError, TaskHandle_t};
 
-pub struct Core<'a: 'b, 'b> {
+pub struct Core<'a: 'b, 'b, Pin>
+where
+    Pin: ADCPin,
+{
     leds_controller: &'b mut LedsController<'a>,
-    mic: &'b Mic<'a>,
+    mic: &'b Mic<'a, Pin>,
     task: TaskHandle_t,
 }
 
-impl<'a: 'b, 'b> Core<'a, 'b> {
+impl<'a: 'b, 'b, Pin> Core<'a, 'b, Pin>
+where
+    Pin: ADCPin,
+{
     pub fn new(
         leds_controller: &'b mut LedsController<'a>,
-        mut mic: &'b Mic<'a>,
+        mut mic: &'b Mic<'a, Pin>,
     ) -> Result<Self, EspError> {
         const TASK_NAME: Result<&'static CStr, FromBytesWithNulError> =
             CStr::from_bytes_with_nul(b"MIC_ANALYSIS_THREAD\0");
@@ -24,7 +31,14 @@ impl<'a: 'b, 'b> Core<'a, 'b> {
         let tk: TaskHandle_t;
         let core = Option::Some(cpu::Core::from(consts::OTHER_THREAD_ID));
         unsafe {
-            tk = task::create(mic::start_task, TASK_NAME.unwrap(), 10000, mic_ptr, 5, core)?;
+            tk = task::create(
+                mic::start_task::<Pin>,
+                TASK_NAME.unwrap(),
+                10000,
+                mic_ptr,
+                5,
+                core,
+            )?;
             log::info!("Createdd");
         }
         log::info!("Created");
