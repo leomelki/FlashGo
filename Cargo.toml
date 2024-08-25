@@ -1,5 +1,5 @@
 [package]
-name = "flashgo-nostd"
+name = "flashgo-std"
 version = "0.1.0"
 authors = ["leomelki <melkileo@gmail.com>"]
 edition = "2021"
@@ -7,8 +7,8 @@ resolver = "2"
 rust-version = "1.77"
 
 [[bin]]
-name = "flashgo-nostd"
-harness = false        # do not use the built in cargo test harness -> resolve rust-analyzer errors
+name = "flashgo-std"
+harness = false      # do not use the built in cargo test harness -> resolve rust-analyzer errors
 
 [profile.release]
 opt-level = "s"
@@ -18,14 +18,7 @@ debug = true    # Symbols are nice and they don't increase the size on Flash
 opt-level = "z"
 
 [features]
-default = [
-    "alloc",
-    "embassy",
-    "esp-idf-svc/native",
-    "esp-idf-svc/panic_handler",
-    "esp-idf-svc/alloc_handler",
-    "esp-idf-svc/libstart",
-]
+default = ["std", "embassy", "esp-idf-svc/native"]
 
 pio = ["esp-idf-svc/pio"]
 std = ["alloc", "esp-idf-svc/binstart", "esp-idf-svc/std"]
@@ -43,6 +36,7 @@ log = { version = "0.4", default-features = false }
 esp-idf-svc = { version = "0.49", default-features = false }
 micropb = "0.1.0"
 microfft = "0.6.0"
+embassy-futures = "0.1.1"
 
 [build-dependencies]
 embuild = "0.32.0"

@@ -18,4 +18,4 @@ case "$1" in
     ;;
 esac
 
-web-flash --chip esp32 target/xtensa-esp32-espidf/${BUILD_MODE}/flashgo-nostd
+web-flash --chip esp32 target/xtensa-esp32-espidf/${BUILD_MODE}/flashgo-std

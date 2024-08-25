@@ -5,7 +5,7 @@
       "name": "Wokwi GDB",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/target/xtensa-esp32-espidf/debug/flashgo-nostd",
+      "program": "${workspaceFolder}/target/xtensa-esp32-espidf/debug/flashgo-std",
       "cwd": "${workspaceFolder}",
       "MIMode": "gdb",
       "miDebuggerPath": "${userHome}/.espressif/tools/xtensa-esp-elf-gdb/14.2_20240403/xtensa-esp-elf-gdb/bin/xtensa-esp32-elf-gdb",
