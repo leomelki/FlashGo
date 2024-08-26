@@ -26,7 +26,9 @@ fn main() -> Result<(), EspError> {
     // Bind the log crate to the ESP Logging facilities
     esp_idf_svc::log::EspLogger::initialize_default();
 
-    log::info!("Hello, world!");
+    server::bluetooth::server::BluetoothServer::new().start();
+
+    log::info!("Hello, world !!");
 
     let mut peripherals = Peripherals::take()?;
     let ledPin = unsafe { peripherals.pins.gpio23.clone_unchecked() };

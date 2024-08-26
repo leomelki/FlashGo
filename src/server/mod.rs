@@ -1,1 +1,1 @@
-pub mod bluetooth_server;
+pub mod bluetooth;
