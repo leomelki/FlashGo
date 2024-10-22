@@ -19,8 +19,8 @@ pub struct Config {
     pub buffer_size: usize,
 }
 
-const MIC_ANALYSIS_CONFIG: Config = Config {
-    sample_rate: 40000,
+pub const MIC_ANALYSIS_CONFIG: Config = Config {
+    sample_rate: 3000, //40000 / 2,
     buffer_size: 1024,
 };
 
@@ -81,7 +81,7 @@ where
             core::cmp::Ordering::Equal => {
                 self.index += 1;
                 log::info!("Analyze");
-                self.analyze_fft();
+                // self.analyze_fft();
                 self.index = 0;
             }
             core::cmp::Ordering::Greater => {

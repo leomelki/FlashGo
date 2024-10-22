@@ -26,12 +26,6 @@ impl BluetoothServer {
 
     pub fn start(&mut self) {
         log::info!("Starting Bluetooth Server");
-        let uid = uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_X500, b"Salut ca va ?");
-        log::info!("{:?}", uid);
-        let uid1 = uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_X500, b"Salut ca va ?");
-        log::info!("{:?}", uid1);
-        let uid2 = uuid::Uuid::new_v5(&uuid::Uuid::NAMESPACE_X500, b"Salut ca va !");
-        log::info!("{:?}", uid2);
 
         self.server.on_connect(|server, clntdesc| {
             // Print connected client data

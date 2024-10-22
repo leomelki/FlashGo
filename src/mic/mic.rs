@@ -11,16 +11,6 @@ use crate::mic;
 
 use super::micreader::MicReader;
 
-pub struct Config {
-    pub sample_rate: u32,
-    pub buffer_size: usize,
-}
-
-const MIC_ANALYSIS_CONFIG: Config = Config {
-    sample_rate: 40000,
-    buffer_size: 1024,
-};
-
 pub struct Mic {}
 
 impl Mic {
@@ -55,19 +45,18 @@ impl Mic {
         };
         log::info!("b");
 
-        const SAMPLE_PERIOD: u32 = 1_000_000_000 / MIC_ANALYSIS_CONFIG.sample_rate;
+        const SAMPLE_PERIOD: u32 = 1_000_000_000 / mic::micreader::MIC_ANALYSIS_CONFIG.sample_rate;
         let wait_duration: Duration = Duration::from_nanos(SAMPLE_PERIOD as u64);
 
-        let service = EspTimerService::new().unwrap();
+        let service = EspTimerService::new()?;
         log::info!("start mic");
 
-        let timer = service
-            .timer(move || {
-                static_reader.update().unwrap();
-            })
-            .unwrap();
-
-        timer.every(wait_duration).unwrap();
+        let timer = service.timer(move || {
+            static_reader.update().unwrap();
+        })?;
+        log::info!("created");
+        timer.every(wait_duration)?;
+        log::info!("started");
         std::thread::sleep(Duration::from_millis(10));
         log::info!("started mic");
         Ok(())
