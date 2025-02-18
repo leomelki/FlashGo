@@ -32,14 +32,8 @@ fn main() -> Result<(), EspError> {
     let ledPin = unsafe { peripherals.pins.gpio23.clone_unchecked() };
     let ledChannel = unsafe { peripherals.rmt.channel0.clone_unchecked() };
     let mut ledController = LedsController::new(ledChannel, ledPin)?;
-    //    unsafe {
-    //      MIC.replace(mic::Mic::new(peripherals.pins.gpio33, peripherals.adc1)?);
-    // }
     log::info!("1!");
 
-    // let micPin = peripherals.pins.gpio36;
-    // let i2s = peripherals.i2s0;
-    // let micChannel = peripherals.adc1;
     let mut mic_reader = mic::micreader::MicReader::new(peripherals.pins.gpio33, peripherals.adc1)?;
     log::info!("2");
     let mut mic = mic::mic::Mic::new()?;

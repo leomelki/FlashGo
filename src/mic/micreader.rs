@@ -1,17 +1,13 @@
-use core::time::Duration;
-
 use esp_idf_svc::{
     hal::{
         adc::{
             attenuation::DB_11,
             oneshot::{config::AdcChannelConfig, *},
         },
-        delay::Delay,
         gpio::ADCPin,
         peripheral::Peripheral,
     },
     sys::EspError,
-    timer::EspTimerService,
 };
 
 pub struct Config {
@@ -24,20 +20,20 @@ const MIC_ANALYSIS_CONFIG: Config = Config {
     buffer_size: 1024,
 };
 
-pub struct MicReader<'a, Pin>
+pub struct MicReader<Pin>
 where
     Pin: ADCPin,
 {
-    channel: AdcChannelDriver<'a, Pin, AdcDriver<'a, Pin::Adc>>,
+    channel: AdcChannelDriver<'static, Pin, AdcDriver<'static, Pin::Adc>>,
     buffer: [f32; MIC_ANALYSIS_CONFIG.buffer_size],
     index: usize,
 }
 
-impl<'a: 'static, Pin> MicReader<'a, Pin>
+impl<Pin> MicReader<Pin>
 where
     Pin: ADCPin,
 {
-    pub fn new(pin: Pin, adc: impl Peripheral<P = Pin::Adc> + 'a) -> Result<Self, EspError> {
+    pub fn new(pin: Pin, adc: impl Peripheral<P = Pin::Adc> + 'static) -> Result<Self, EspError> {
         log::info!("Created mic reader");
         let adc_driver = AdcDriver::new(adc)?;
         let adc_config = AdcChannelConfig {

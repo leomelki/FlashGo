@@ -10,15 +10,15 @@ use super::driver::Ws2812Esp32RmtDriver;
 const LED_COUNT: usize = 8 * 8;
 const BUFF: [usize; 500000] = [0; 500000];
 
-pub struct LedsController<'a> {
-    encoder_driver: Ws2812Esp32RmtDriver<'a>,
+pub struct LedsController {
+    encoder_driver: Ws2812Esp32RmtDriver<'static>,
     colors: [Color; LED_COUNT],
 }
 
-impl<'a> LedsController<'a> {
+impl LedsController {
     pub(crate) fn new<C: RmtChannel>(
-        channel: impl Peripheral<P = C> + 'a,
-        pin: impl Peripheral<P = impl OutputPin> + 'a,
+        channel: impl Peripheral<P = C> + 'static,
+        pin: impl Peripheral<P = impl OutputPin> + 'static,
     ) -> Result<Self, EspError> {
         Ok(LedsController {
             colors: [Color::BLACK; LED_COUNT],

@@ -1,27 +1,23 @@
 use crate::leds::leds_controller::LedsController;
 use crate::mic::micreader::MicReader;
-use crate::{consts, mic};
-use core::ffi::{c_void, CStr, FromBytesWithNulError};
-use esp_idf_svc::hal::cpu;
 use esp_idf_svc::hal::gpio::ADCPin;
-use esp_idf_svc::hal::task;
-use esp_idf_svc::sys::{EspError, TaskHandle_t};
+use esp_idf_svc::sys::EspError;
 
-pub struct Core<'a: 'b, 'b, Pin>
+pub struct Core<'a, Pin>
 where
     Pin: ADCPin,
 {
-    leds_controller: &'b mut LedsController<'a>,
-    mic: &'b MicReader<'a, Pin>,
+    leds_controller: &'a mut LedsController,
+    mic: &'a MicReader<Pin>,
 }
 
-impl<'a: 'b, 'b, Pin> Core<'a, 'b, Pin>
+impl<'a, Pin> Core<'a, Pin>
 where
     Pin: ADCPin,
 {
     pub fn new(
-        leds_controller: &'b mut LedsController<'a>,
-        mut mic: &'b MicReader<'a, Pin>,
+        leds_controller: &'a mut LedsController,
+        mut mic: &'a MicReader<Pin>,
     ) -> Result<Self, EspError> {
         Ok(Core {
             leds_controller,
