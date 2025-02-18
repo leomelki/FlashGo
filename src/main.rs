@@ -28,10 +28,20 @@ fn main() -> Result<(), EspError> {
 
     log::info!("Hello, world!");
 
-    let mut peripherals = Peripherals::take()?;
-    let ledPin = unsafe { peripherals.pins.gpio23.clone_unchecked() };
-    let ledChannel = unsafe { peripherals.rmt.channel0.clone_unchecked() };
-    let mut ledController = LedsController::new(ledChannel, ledPin)?;
+    let peripherals = Peripherals::take()?;
+    let mut led_controller =
+        LedsController::new(peripherals.rmt.channel0, peripherals.pins.gpio23)?;
+
+    led_controller.set_color(3, 1, leds::color::Color::RED);
+    led_controller.set_color(3, 2, leds::color::Color::RED);
+    led_controller.set_color(3, 3, leds::color::Color::RED);
+    led_controller.set_color(3, 4, leds::color::Color::RED);
+    led_controller.set_color(3, 5, leds::color::Color::RED);
+    led_controller.set_color(2, 5, leds::color::Color::RED);
+    led_controller.set_color(1, 5, leds::color::Color::RED);
+    led_controller.set_color(0, 0, leds::color::Color::RED);
+    led_controller.update()?;
+
     log::info!("1!");
 
     let mut mic_reader = mic::micreader::MicReader::new(peripherals.pins.gpio33, peripherals.adc1)?;
@@ -43,14 +53,4 @@ fn main() -> Result<(), EspError> {
     loop {
         Delay::new(1).delay_ms(500);
     }
-
-    ledController.set_color(3, 1, leds::color::Color::RED);
-    ledController.set_color(3, 2, leds::color::Color::RED);
-    ledController.set_color(3, 3, leds::color::Color::RED);
-    ledController.set_color(3, 4, leds::color::Color::RED);
-    ledController.set_color(3, 5, leds::color::Color::RED);
-    ledController.set_color(2, 5, leds::color::Color::RED);
-    ledController.set_color(1, 5, leds::color::Color::RED);
-    ledController.set_color(0, 0, leds::color::Color::RED);
-    ledController.update()
 }
