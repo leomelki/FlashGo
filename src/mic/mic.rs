@@ -6,16 +6,6 @@ use std::time::Duration;
 
 use super::micreader::MicReader;
 
-pub struct Config {
-    pub sample_rate: u32,
-    pub buffer_size: usize,
-}
-
-const MIC_ANALYSIS_CONFIG: Config = Config {
-    sample_rate: 40000,
-    buffer_size: 1024,
-};
-
 pub struct Mic {}
 
 impl Mic {
