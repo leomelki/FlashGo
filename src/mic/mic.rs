@@ -1,13 +1,8 @@
-use core::ffi::{c_void, CStr, FromBytesWithNulError};
-use esp_idf_svc::hal::cpu;
 use esp_idf_svc::hal::gpio::ADCPin;
-use esp_idf_svc::hal::task;
+use esp_idf_svc::hal::peripheral::Peripheral;
 use esp_idf_svc::sys::EspError;
 use esp_idf_svc::timer::EspTimerService;
 use std::time::Duration;
-
-use crate::consts;
-use crate::mic;
 
 use super::micreader::MicReader;
 
@@ -28,31 +23,17 @@ impl Mic {
         Ok(Mic {})
     }
 
-    pub fn start_task<Pin>(&mut self, reader: &mut MicReader<Pin>) -> Result<(), EspError>
+    pub fn start_task<Pin>(
+        &mut self,
+        pin: Pin,
+        adc: impl Peripheral<P = Pin::Adc> + 'static,
+    ) -> Result<(), EspError>
     where
         Pin: ADCPin,
     {
-        /*const TASK_NAME: Result<&'static CStr, FromBytesWithNulError> =
-            CStr::from_bytes_with_nul(b"MIC_ANALYSIS_THREAD\0");
-        let mic_ptr: *mut c_void = reader as *mut _ as *mut c_void;
-        log::info!("Creating task!!!");
-        let core = Option::Some(cpu::Core::from(consts::OTHER_THREAD_ID));
-        unsafe {
-            task::create(
-                mic::micreader::start_mic_reader_task::<Pin>,
-                TASK_NAME.unwrap(),
-                10000,
-                mic_ptr,
-                5,
-                core,
-            )?;
-            log::info!("Createdd");
-        }
-        log::info!("Created");*/
         log::info!("a");
-        let static_reader = unsafe {
-            core::mem::transmute::<&mut MicReader<Pin>, &'static mut MicReader<Pin>>(reader)
-        };
+
+        let mut reader = MicReader::new(pin, adc)?;
         log::info!("b");
 
         const SAMPLE_PERIOD: u32 = 1_000_000_000 / MIC_ANALYSIS_CONFIG.sample_rate;
@@ -63,7 +44,7 @@ impl Mic {
 
         let timer = service
             .timer(move || {
-                static_reader.update().unwrap();
+                // reader.update().unwrap();
             })
             .unwrap();
 

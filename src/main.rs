@@ -10,6 +10,10 @@ use std::sync::OnceLock;
 use std::sync::RwLock;
 use std::thread::Builder;
 
+use esp_idf_svc::hal::adc::attenuation::DB_11;
+use esp_idf_svc::hal::adc::oneshot::config::AdcChannelConfig;
+use esp_idf_svc::hal::adc::oneshot::AdcChannelDriver;
+use esp_idf_svc::hal::adc::oneshot::AdcDriver;
 use esp_idf_svc::hal::delay::Delay;
 use esp_idf_svc::hal::gpio::Gpio33;
 use esp_idf_svc::hal::peripheral::Peripheral;
@@ -44,13 +48,23 @@ fn main() -> Result<(), EspError> {
 
     log::info!("1!");
 
-    let mut mic_reader = mic::micreader::MicReader::new(peripherals.pins.gpio33, peripherals.adc1)?;
-    log::info!("2");
-    let mut mic = mic::mic::Mic::new()?;
-    log::info!("3");
-    mic.start_task::<Gpio33>(&mut mic_reader)?;
-    log::info!("done");
-    loop {
-        Delay::new(1).delay_ms(500);
+    unsafe {
+        let remaining_ram = esp_idf_svc::sys::esp_get_free_heap_size();
+        log::info!("Remaining RAM 1: {}", remaining_ram);
     }
+    let mut mic_reader = mic::micreader::MicReader::new(peripherals.pins.gpio35, peripherals.adc1)?;
+
+    unsafe {
+        let remaining_ram = esp_idf_svc::sys::esp_get_free_heap_size();
+        log::info!("Remaining RAM 2: {}", remaining_ram);
+    }
+
+    loop {
+        mic_reader.read_buffer_process()?;
+    }
+
+    Ok(())
+    // let mut mic = mic::mic::Mic::new()?;
+    // mic.start_task(peripherals.pins.gpio33, peripherals.adc1)?;
+    // log::info!("done");
 }

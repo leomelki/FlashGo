@@ -8,7 +8,6 @@ use esp_idf_svc::sys::EspError;
 use super::driver::Ws2812Esp32RmtDriver;
 
 const LED_COUNT: usize = 8 * 8;
-const BUFF: [usize; 500000] = [0; 500000];
 
 pub struct LedsController {
     encoder_driver: Ws2812Esp32RmtDriver<'static>,
