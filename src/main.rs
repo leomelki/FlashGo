@@ -23,30 +23,10 @@ fn main() -> Result<(), DriverError> {
     led_controller.set_color(0, 0, Color::red());
     led_controller.update()?;
 
-    // log::info!("1!");
-
-    // unsafe {
-    //     let remaining_ram = esp_idf_svc::sys::esp_get_free_heap_size();
-    //     log::info!("Remaining RAM 1: {}", remaining_ram);
-    // }
-    // let mut mic_reader = mic::micreader::MicReader::new(peripherals.pins.gpio35, peripherals.adc1)?;
-
-    // unsafe {
-    //     let remaining_ram = esp_idf_svc::sys::esp_get_free_heap_size();
-    //     log::info!("Remaining RAM 2: {}", remaining_ram);
-    // }
-
-    // loop {
-    //     mic_reader.read_buffer_process()?;
-    // }
-
     let mic = driver.take_mic();
     let mut mic_reader = mic::micreader::MicReader::new(mic);
     loop {
         mic_reader.read_buffer_process()?;
     }
     Ok(())
-    // let mut mic = mic::mic::Mic::new()?;
-    // mic.start_task(peripherals.pins.gpio33, peripherals.adc1)?;
-    // log::info!("done");
 }
