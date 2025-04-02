@@ -5,25 +5,25 @@ use esp_idf_svc::sys::EspError;
 
 use crate::drivers::driver::DriverError;
 
-use super::super::leds::Leds as LedsTrait;
+use super::super::leds::Leds;
 use super::super::leds::{Color, LED_COUNT};
 use super::leds_driver::Ws2812Esp32RmtDriver;
-pub struct Leds {
+pub struct LedsESPImpl {
     encoder_driver: Ws2812Esp32RmtDriver<'static>,
 }
 
-impl Leds {
+impl LedsESPImpl {
     pub(crate) fn new<C: RmtChannel>(
         channel: impl Peripheral<P = C> + 'static,
         pin: impl Peripheral<P = impl OutputPin> + 'static,
     ) -> Result<Self, EspError> {
-        Ok(Leds {
+        Ok(LedsESPImpl {
             encoder_driver: Ws2812Esp32RmtDriver::new(channel, pin)?,
         })
     }
 }
 
-impl LedsTrait for Leds {
+impl Leds for LedsESPImpl {
     fn update(&mut self, colors: [Color; LED_COUNT]) -> Result<(), DriverError> {
         self.encoder_driver.write_blocking(
             colors

@@ -1,19 +1,19 @@
 use crate::drivers::driver::DriverError;
 
-use super::super::driver::Driver as DriverTrait;
-use super::super::leds::Leds as LedsTrait;
-use super::super::mic::Mic as MicTrait;
-use super::leds::Leds;
-use super::mic::Mic;
+use super::super::driver::Driver;
+use super::super::leds::Leds;
+use super::super::mic::Mic;
+use super::leds::LedsESPImpl;
+use super::mic::MicESPImpl;
 use esp_idf_svc::hal::{gpio::Gpio35, prelude::Peripherals};
 use std::cell::RefCell;
 
-pub struct Driver {
-    leds: RefCell<Option<Leds>>,
-    mic: RefCell<Option<Mic<Gpio35>>>,
+pub struct DriverESPImpl {
+    leds: RefCell<Option<LedsESPImpl>>,
+    mic: RefCell<Option<MicESPImpl<Gpio35>>>,
 }
 
-impl Driver {
+impl DriverESPImpl {
     pub fn new() -> Result<Self, DriverError> {
         // It is necessary to call this function once. Otherwise some patches to the runtime
         // implemented by esp-idf-sys might not link properly. See https://github.com/esp-rs/esp-idf-template/issues/71
@@ -24,23 +24,23 @@ impl Driver {
 
         let peripherals = Peripherals::take()?;
 
-        let leds = Leds::new(peripherals.rmt.channel0, peripherals.pins.gpio23)?;
-        let mic = Mic::new(peripherals.pins.gpio35, peripherals.adc1)?;
+        let leds = LedsESPImpl::new(peripherals.rmt.channel0, peripherals.pins.gpio23)?;
+        let mic = MicESPImpl::new(peripherals.pins.gpio35, peripherals.adc1)?;
 
-        Ok(Driver {
+        Ok(DriverESPImpl {
             leds: RefCell::new(Some(leds)),
             mic: RefCell::new(Some(mic)),
         })
     }
 }
 
-impl DriverTrait for Driver {
-    fn take_leds(&mut self) -> Box<dyn LedsTrait> {
+impl Driver for DriverESPImpl {
+    fn take_leds(&mut self) -> Box<dyn Leds> {
         let leds = self.leds.borrow_mut().take().expect("LEDs already taken");
         Box::new(leds)
     }
 
-    fn take_mic(&mut self) -> Box<dyn MicTrait> {
+    fn take_mic(&mut self) -> Box<dyn Mic> {
         let mic = self
             .mic
             .borrow_mut()

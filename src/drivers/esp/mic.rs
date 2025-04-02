@@ -1,17 +1,16 @@
 use crate::drivers::driver::DriverError;
 
-use super::super::mic::Mic as MicTrait;
+use super::super::mic::Mic;
 use super::super::mic::MIC_ANALYSIS_CONFIG;
 use esp_idf_svc::hal::{
     adc::{
         attenuation::DB_11,
         oneshot::{config::AdcChannelConfig, *},
     },
-    delay::Delay,
     gpio::ADCPin,
     peripheral::Peripheral,
 };
-pub struct Mic<Pin>
+pub struct MicESPImpl<Pin>
 where
     Pin: ADCPin,
 {
@@ -19,7 +18,7 @@ where
     buffer: [f32; MIC_ANALYSIS_CONFIG.buffer_size],
 }
 
-impl<Pin> Mic<Pin>
+impl<Pin> MicESPImpl<Pin>
 where
     Pin: ADCPin,
 {
@@ -42,7 +41,7 @@ where
     }
 }
 
-impl<Pin> MicTrait for Mic<Pin>
+impl<Pin> Mic for MicESPImpl<Pin>
 where
     Pin: ADCPin,
 {

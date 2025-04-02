@@ -1,4 +1,4 @@
-use crate::drivers::esp::driver::Driver as EspDriver;
+use crate::drivers::esp::driver::DriverESPImpl;
 use crate::drivers::leds::Leds;
 use crate::drivers::mic::Mic;
 use esp_idf_svc::sys::EspError;
@@ -12,6 +12,6 @@ pub trait Driver {
 }
 
 pub fn create_driver() -> Result<Box<dyn Driver>, DriverError> {
-    let driver = EspDriver::new()?;
+    let driver = DriverESPImpl::new()?;
     Ok(Box::new(driver))
 }
