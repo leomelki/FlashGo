@@ -1,9 +1,11 @@
-use crate::drivers::esp::driver::DriverESPImpl;
-use crate::drivers::leds::Leds;
-use crate::drivers::mic::Mic;
-use esp_idf_svc::sys::EspError;
+use super::leds::Leds;
+use super::mic::Mic;
 
-pub type DriverError = EspError;
+#[cfg(not(target_arch = "wasm32"))]
+pub type DriverError = esp_idf_svc::sys::EspError;
+
+#[cfg(target_arch = "wasm32")]
+pub type DriverError = ();
 
 pub trait Driver {
     fn take_leds(&mut self) -> Box<dyn Leds>;
@@ -11,7 +13,24 @@ pub trait Driver {
     fn take_mic(&mut self) -> Box<dyn Mic>;
 }
 
+pub fn delay_ms(ms: u32) {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        esp_idf_svc::hal::delay::Delay::new(100).delay_ms(ms);
+    }
+}
+pub fn log(message: &str) {
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        log::info!("{}", message);
+    }
+}
+
 pub fn create_driver() -> Result<Box<dyn Driver>, DriverError> {
-    let driver = DriverESPImpl::new()?;
+    #[cfg(not(target_arch = "wasm32"))]
+    let driver = super::esp::driver::DriverESPImpl::new()?;
+    #[cfg(target_arch = "wasm32")]
+    let driver = super::web::driver::DriverWebImpl::new()?;
+
     Ok(Box::new(driver))
 }

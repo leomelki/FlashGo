@@ -1,6 +1,7 @@
-use crate::drivers::leds::{Color, Leds, LED_COUNT};
-
-use esp_idf_svc::sys::EspError;
+use crate::drivers::{
+    driver::DriverError,
+    leds::{Color, Leds, LED_COUNT},
+};
 
 pub struct LedsController {
     leds: Box<dyn Leds>,
@@ -8,14 +9,14 @@ pub struct LedsController {
 }
 
 impl LedsController {
-    pub fn new(leds: Box<dyn Leds>) -> Result<Self, EspError> {
+    pub fn new(leds: Box<dyn Leds>) -> Result<Self, DriverError> {
         Ok(LedsController {
             leds,
             colors: [Color::black(); LED_COUNT],
         })
     }
 
-    pub fn update(&mut self) -> Result<(), EspError> {
+    pub fn update(&mut self) -> Result<(), DriverError> {
         self.leds.update(self.colors)
     }
 

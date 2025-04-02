@@ -3,8 +3,7 @@ use esp_idf_svc::hal::peripheral::Peripheral;
 use esp_idf_svc::hal::rmt::RmtChannel;
 use esp_idf_svc::sys::EspError;
 
-use crate::drivers::driver::DriverError;
-
+use super::super::driver::DriverError;
 use super::super::leds::Leds;
 use super::super::leds::{Color, LED_COUNT};
 use super::leds_driver::Ws2812Esp32RmtDriver;

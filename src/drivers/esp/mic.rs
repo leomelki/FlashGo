@@ -1,7 +1,9 @@
-use crate::drivers::driver::DriverError;
+use std::time::Instant;
 
+use super::super::driver::DriverError;
 use super::super::mic::Mic;
 use super::super::mic::MIC_ANALYSIS_CONFIG;
+
 use esp_idf_svc::hal::{
     adc::{
         attenuation::DB_11,
@@ -49,7 +51,7 @@ where
         //respect the sample rate
         let sample_period = 1_000_000_000 / MIC_ANALYSIS_CONFIG.sample_rate;
         for x in self.buffer.iter_mut().take(MIC_ANALYSIS_CONFIG.buffer_size) {
-            let start_read = std::time::Instant::now();
+            let start_read = Instant::now();
             *x = self.channel.read()? as f32;
             while start_read.elapsed().as_nanos() < sample_period as u128 {
                 // wait

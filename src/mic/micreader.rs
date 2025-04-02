@@ -1,6 +1,7 @@
-use esp_idf_svc::{hal::delay::Delay, sys::EspError};
-
-use crate::drivers::mic::{Mic, MIC_ANALYSIS_CONFIG};
+use crate::drivers::{
+    driver::{delay_ms, DriverError},
+    mic::{Mic, MIC_ANALYSIS_CONFIG},
+};
 
 pub struct MicReader {
     mic: Box<dyn Mic>,
@@ -53,7 +54,7 @@ impl MicReader {
         // log::info!("{:?}", amplitudes);
     }
 
-    pub fn read_buffer_process(&mut self) -> Result<(), EspError> {
+    pub fn read_buffer_process(&mut self) -> Result<(), DriverError> {
         let start = std::time::Instant::now();
 
         let mut buffer = self.mic.read_buffer()?;
@@ -69,7 +70,7 @@ impl MicReader {
                 * 100.0
         );
 
-        Delay::new(100).delay_ms(1);
+        delay_ms(1);
         // log::info!("Elapsed after wait: {:?}", elapsed.as_millis());
 
         self.analyze_fft(&mut buffer);

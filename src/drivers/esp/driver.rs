@@ -1,11 +1,12 @@
-use crate::drivers::driver::DriverError;
-
 use super::super::driver::Driver;
+use super::super::driver::DriverError;
 use super::super::leds::Leds;
 use super::super::mic::Mic;
 use super::leds::LedsESPImpl;
 use super::mic::MicESPImpl;
+
 use esp_idf_svc::hal::{gpio::Gpio35, prelude::Peripherals};
+
 use std::cell::RefCell;
 
 pub struct DriverESPImpl {
