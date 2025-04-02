@@ -11,7 +11,7 @@ use leds::leds_controller::LedsController;
 fn main() -> Result<(), EspError> {
     let driver = Box::leak(crate::drivers::driver::create_driver()?);
 
-    let mut led_controller = LedsController::new(driver.get_leds())?;
+    let mut led_controller = LedsController::new(driver.take_leds())?;
 
     led_controller.set_color(3, 1, Color::red());
     led_controller.set_color(3, 2, Color::red());
@@ -40,6 +40,11 @@ fn main() -> Result<(), EspError> {
     //     mic_reader.read_buffer_process()?;
     // }
 
+    let mic = driver.take_mic();
+    let mut mic_reader = mic::micreader::MicReader::new(mic);
+    loop {
+        mic_reader.read_buffer_process()?;
+    }
     Ok(())
     // let mut mic = mic::mic::Mic::new()?;
     // mic.start_task(peripherals.pins.gpio33, peripherals.adc1)?;

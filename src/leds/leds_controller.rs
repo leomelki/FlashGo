@@ -3,12 +3,12 @@ use crate::drivers::leds::{Color, Leds, LED_COUNT};
 use esp_idf_svc::sys::EspError;
 
 pub struct LedsController {
-    leds: &'static mut dyn Leds,
+    leds: Box<dyn Leds>,
     colors: [Color; LED_COUNT],
 }
 
 impl LedsController {
-    pub(crate) fn new(leds: &'static mut dyn Leds) -> Result<Self, EspError> {
+    pub fn new(leds: Box<dyn Leds>) -> Result<Self, EspError> {
         Ok(LedsController {
             leds,
             colors: [Color::black(); LED_COUNT],

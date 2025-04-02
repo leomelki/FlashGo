@@ -1,52 +1,17 @@
-use esp_idf_svc::{
-    hal::{
-        adc::{
-            attenuation::DB_11,
-            oneshot::{config::AdcChannelConfig, *},
-        },
-        delay::Delay,
-        gpio::ADCPin,
-        peripheral::Peripheral,
-    },
-    sys::EspError,
-};
+use esp_idf_svc::{hal::delay::Delay, sys::EspError};
 
-pub struct Config {
-    pub sample_rate: usize,
-    pub buffer_size: usize,
+use crate::drivers::mic::{Mic, MIC_ANALYSIS_CONFIG};
+
+pub struct MicReader {
+    mic: Box<dyn Mic>,
 }
 
-const MIC_ANALYSIS_CONFIG: Config = Config {
-    sample_rate: 44100 / 4,
-    buffer_size: 1024,
-};
-
-pub struct MicReader<Pin>
-where
-    Pin: ADCPin,
-{
-    channel: AdcChannelDriver<'static, Pin, AdcDriver<'static, Pin::Adc>>,
-}
-
-impl<Pin> MicReader<Pin>
-where
-    Pin: ADCPin,
-{
-    pub fn new(pin: Pin, adc: impl Peripheral<P = Pin::Adc> + 'static) -> Result<Self, EspError> {
-        let adc_driver = AdcDriver::new(adc)?;
-        let adc_config: AdcChannelConfig = AdcChannelConfig {
-            calibration: true,
-            attenuation: DB_11,
-            ..Default::default()
-        };
-        let adc_channel = AdcChannelDriver::new(adc_driver, pin, &adc_config)?;
-
-        Ok(MicReader {
-            channel: adc_channel,
-        })
+impl MicReader {
+    pub fn new(mic: Box<dyn Mic>) -> Self {
+        MicReader { mic }
     }
 
-    fn analyze_fft(&mut self, buffer: &mut [f32; MIC_ANALYSIS_CONFIG.buffer_size]) {
+    fn analyze_fft(&self, buffer: &mut [f32; MIC_ANALYSIS_CONFIG.buffer_size]) {
         let mean = buffer.iter().sum::<f32>() / buffer.len() as f32;
 
         // subtract the mean
@@ -54,7 +19,7 @@ where
             *x -= mean;
         }
 
-        let spectrum = microfft::real::rfft_1024(buffer);
+        let spectrum = microfft::real::rfft_256(buffer);
 
         spectrum[0].im = 0.0;
 
@@ -89,21 +54,13 @@ where
     }
 
     pub fn read_buffer_process(&mut self) -> Result<(), EspError> {
-        let buffer = &mut [0f32; MIC_ANALYSIS_CONFIG.buffer_size];
-        //respect the sample rate
-        let sample_period = 1_000_000_000 / MIC_ANALYSIS_CONFIG.sample_rate;
-
         let start = std::time::Instant::now();
-        for x in buffer.iter_mut().take(MIC_ANALYSIS_CONFIG.buffer_size) {
-            let start_read = std::time::Instant::now();
-            *x = self.channel.read()? as f32;
-            while start_read.elapsed().as_nanos() < sample_period as u128 {
-                // wait
-            }
-        }
+
+        let mut buffer = self.mic.read_buffer()?;
 
         let elapsed = start.elapsed();
 
+        let sample_period = 1_000_000_000 / MIC_ANALYSIS_CONFIG.sample_rate;
         log::info!(
             "Elapsed: {:?}ns and should be {:?}. It is {:?}%",
             elapsed.as_nanos(),
@@ -115,7 +72,7 @@ where
         Delay::new(100).delay_ms(1);
         // log::info!("Elapsed after wait: {:?}", elapsed.as_millis());
 
-        self.analyze_fft(buffer);
+        self.analyze_fft(&mut buffer);
 
         let elapsed = start.elapsed();
         log::info!("Freq: {:?} Hz", 1000 / elapsed.as_millis());

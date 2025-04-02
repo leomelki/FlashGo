@@ -46,11 +46,9 @@ impl<Pin> MicTrait for Mic<Pin>
 where
     Pin: ADCPin,
 {
-    fn read_buffer(&mut self) -> Result<&mut [f32; MIC_ANALYSIS_CONFIG.buffer_size], DriverError> {
+    fn read_buffer(&mut self) -> Result<[f32; MIC_ANALYSIS_CONFIG.buffer_size], DriverError> {
         //respect the sample rate
         let sample_period = 1_000_000_000 / MIC_ANALYSIS_CONFIG.sample_rate;
-
-        let start = std::time::Instant::now();
         for x in self.buffer.iter_mut().take(MIC_ANALYSIS_CONFIG.buffer_size) {
             let start_read = std::time::Instant::now();
             *x = self.channel.read()? as f32;
@@ -59,18 +57,6 @@ where
             }
         }
 
-        let elapsed = start.elapsed();
-
-        log::info!(
-            "Elapsed: {:?}ns and should be {:?}. It is {:?}%",
-            elapsed.as_nanos(),
-            sample_period * MIC_ANALYSIS_CONFIG.buffer_size,
-            (elapsed.as_nanos() as f32 / (sample_period * MIC_ANALYSIS_CONFIG.buffer_size) as f32)
-                * 100.0
-        );
-
-        Delay::new(100).delay_ms(1);
-
-        Ok(&mut self.buffer)
+        Ok(self.buffer)
     }
 }

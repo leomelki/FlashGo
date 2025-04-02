@@ -6,10 +6,11 @@ use super::super::mic::Mic as MicTrait;
 use super::leds::Leds;
 use super::mic::Mic;
 use esp_idf_svc::hal::{gpio::Gpio35, prelude::Peripherals};
+use std::cell::RefCell;
 
 pub struct Driver {
-    leds: Leds,
-    mic: Mic<Gpio35>,
+    leds: RefCell<Option<Leds>>,
+    mic: RefCell<Option<Mic<Gpio35>>>,
 }
 
 impl Driver {
@@ -23,20 +24,28 @@ impl Driver {
 
         let peripherals = Peripherals::take()?;
 
-        let driver = Driver {
-            leds: Leds::new(peripherals.rmt.channel0, peripherals.pins.gpio23)?,
-            mic: Mic::new(peripherals.pins.gpio35, peripherals.adc1)?,
-        };
-        Ok(driver)
+        let leds = Leds::new(peripherals.rmt.channel0, peripherals.pins.gpio23)?;
+        let mic = Mic::new(peripherals.pins.gpio35, peripherals.adc1)?;
+
+        Ok(Driver {
+            leds: RefCell::new(Some(leds)),
+            mic: RefCell::new(Some(mic)),
+        })
     }
 }
 
 impl DriverTrait for Driver {
-    fn get_leds(&mut self) -> &mut dyn LedsTrait {
-        &mut self.leds
+    fn take_leds(&mut self) -> Box<dyn LedsTrait> {
+        let leds = self.leds.borrow_mut().take().expect("LEDs already taken");
+        Box::new(leds)
     }
 
-    fn get_mic(&mut self) -> &mut dyn MicTrait {
-        &mut self.mic
+    fn take_mic(&mut self) -> Box<dyn MicTrait> {
+        let mic = self
+            .mic
+            .borrow_mut()
+            .take()
+            .expect("Microphone already taken");
+        Box::new(mic)
     }
 }
