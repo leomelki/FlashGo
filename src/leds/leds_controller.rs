@@ -1,36 +1,22 @@
-use crate::leds::color::Color;
+use crate::drivers::leds::{Color, Leds, LED_COUNT};
 
-use esp_idf_svc::hal::gpio::OutputPin;
-use esp_idf_svc::hal::peripheral::Peripheral;
-use esp_idf_svc::hal::rmt::RmtChannel;
 use esp_idf_svc::sys::EspError;
 
-use super::driver::Ws2812Esp32RmtDriver;
-
-const LED_COUNT: usize = 8 * 8;
-
 pub struct LedsController {
-    encoder_driver: Ws2812Esp32RmtDriver<'static>,
+    leds: &'static mut dyn Leds,
     colors: [Color; LED_COUNT],
 }
 
 impl LedsController {
-    pub(crate) fn new<C: RmtChannel>(
-        channel: impl Peripheral<P = C> + 'static,
-        pin: impl Peripheral<P = impl OutputPin> + 'static,
-    ) -> Result<Self, EspError> {
+    pub(crate) fn new(leds: &'static mut dyn Leds) -> Result<Self, EspError> {
         Ok(LedsController {
-            colors: [Color::BLACK; LED_COUNT],
-            encoder_driver: Ws2812Esp32RmtDriver::new(channel, pin)?,
+            leds,
+            colors: [Color::black(); LED_COUNT],
         })
     }
 
     pub fn update(&mut self) -> Result<(), EspError> {
-        self.encoder_driver.write_blocking(
-            self.colors
-                .iter()
-                .flat_map(|color: &Color| [color.green, color.red, color.blue]),
-        )
+        self.leds.update(self.colors)
     }
 
     pub fn get_color(&self, x: usize, y: usize) -> Color {

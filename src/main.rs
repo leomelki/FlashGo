@@ -1,41 +1,27 @@
 #![allow(clippy::needless_lifetimes)]
 mod consts;
-mod core;
 mod drivers;
 mod leds;
 mod mic;
 mod server;
-
-use std::sync::Arc;
-use std::sync::OnceLock;
-use std::sync::RwLock;
-use std::thread::Builder;
-
-use esp_idf_svc::hal::adc::attenuation::DB_11;
-use esp_idf_svc::hal::adc::oneshot::config::AdcChannelConfig;
-use esp_idf_svc::hal::adc::oneshot::AdcChannelDriver;
-use esp_idf_svc::hal::adc::oneshot::AdcDriver;
-use esp_idf_svc::hal::delay::Delay;
-use esp_idf_svc::hal::gpio::Gpio33;
-use esp_idf_svc::hal::peripheral::Peripheral;
-
-use esp_idf_svc::hal::peripherals::Peripherals;
+use drivers::leds::Color;
 use esp_idf_svc::sys::EspError;
 use leds::leds_controller::LedsController;
 
 fn main() -> Result<(), EspError> {
-    // let mut led_controller =
-    //     LedsController::new(peripherals.rmt.channel0, peripherals.pins.gpio23)?;
+    let driver = Box::leak(crate::drivers::driver::create_driver()?);
 
-    // led_controller.set_color(3, 1, leds::color::Color::RED);
-    // led_controller.set_color(3, 2, leds::color::Color::RED);
-    // led_controller.set_color(3, 3, leds::color::Color::RED);
-    // led_controller.set_color(3, 4, leds::color::Color::RED);
-    // led_controller.set_color(3, 5, leds::color::Color::RED);
-    // led_controller.set_color(2, 5, leds::color::Color::RED);
-    // led_controller.set_color(1, 5, leds::color::Color::RED);
-    // led_controller.set_color(0, 0, leds::color::Color::RED);
-    // led_controller.update()?;
+    let mut led_controller = LedsController::new(driver.get_leds())?;
+
+    led_controller.set_color(3, 1, Color::red());
+    led_controller.set_color(3, 2, Color::red());
+    led_controller.set_color(3, 3, Color::red());
+    led_controller.set_color(3, 4, Color::red());
+    led_controller.set_color(3, 5, Color::red());
+    led_controller.set_color(2, 5, Color::red());
+    led_controller.set_color(1, 5, Color::red());
+    led_controller.set_color(0, 0, Color::red());
+    led_controller.update()?;
 
     // log::info!("1!");
 
@@ -53,8 +39,6 @@ fn main() -> Result<(), EspError> {
     // loop {
     //     mic_reader.read_buffer_process()?;
     // }
-
-    crate::drivers::driver::create_driver()?;
 
     Ok(())
     // let mut mic = mic::mic::Mic::new()?;

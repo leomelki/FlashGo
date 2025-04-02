@@ -5,6 +5,7 @@ pub trait Leds {
     fn update(&mut self, colors: [Color; LED_COUNT]) -> Result<(), DriverError>;
 }
 
+#[derive(Clone, Copy)]
 pub struct Color {
     pub red: u8,
     pub green: u8,
@@ -14,6 +15,11 @@ pub struct Color {
 impl Color {
     pub fn new(red: u8, green: u8, blue: u8) -> Self {
         Self { red, green, blue }
+    }
+    pub fn set(&mut self, color: &Color) {
+        self.red = color.red;
+        self.green = color.green;
+        self.blue = color.blue;
     }
 
     pub fn black() -> Self {

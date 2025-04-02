@@ -32,11 +32,11 @@ impl Driver {
 }
 
 impl DriverTrait for Driver {
-    fn get_leds(&mut self) -> Box<&mut dyn LedsTrait> {
-        Box::new(&mut self.leds)
+    fn get_leds(&mut self) -> &mut dyn LedsTrait {
+        &mut self.leds
     }
 
-    fn get_mic(&mut self) -> Box<&mut dyn MicTrait> {
-        Box::new(&mut self.mic)
+    fn get_mic(&mut self) -> &mut dyn MicTrait {
+        &mut self.mic
     }
 }
