@@ -1,4 +1,4 @@
-use super::driver::DriverError;
+use anyhow::Result;
 
 pub struct Config {
     pub sample_rate: usize,
@@ -11,5 +11,5 @@ pub const MIC_ANALYSIS_CONFIG: Config = Config {
 };
 
 pub trait Mic {
-    fn read_buffer(&mut self) -> Result<[f32; MIC_ANALYSIS_CONFIG.buffer_size], DriverError>;
+    fn read_buffer(&mut self) -> Result<[f32; MIC_ANALYSIS_CONFIG.buffer_size]>;
 }

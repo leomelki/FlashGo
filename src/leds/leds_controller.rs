@@ -1,22 +1,21 @@
-use crate::drivers::{
-    driver::DriverError,
-    leds::{Color, Leds, LED_COUNT},
-};
+use anyhow::Result;
 
-pub struct LedsController {
-    leds: Box<dyn Leds>,
+use crate::drivers::leds::{Color, Leds, LED_COUNT};
+
+pub struct LedsController<L> {
+    leds: L,
     colors: [Color; LED_COUNT],
 }
 
-impl LedsController {
-    pub fn new(leds: Box<dyn Leds>) -> Result<Self, DriverError> {
+impl<L: Leds> LedsController<L> {
+    pub fn new(leds: L) -> Result<Self> {
         Ok(LedsController {
             leds,
             colors: [Color::black(); LED_COUNT],
         })
     }
 
-    pub fn update(&mut self) -> Result<(), DriverError> {
+    pub fn update(&mut self) -> Result<()> {
         self.leds.update(self.colors)
     }
 

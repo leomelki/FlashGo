@@ -1,3 +1,6 @@
 fn main() {
-    embuild::espidf::sysenv::output();
+    #[cfg(feature = "esp")]
+    {
+        embuild::espidf::sysenv::output();
+    }
 }

@@ -1,8 +1,8 @@
-use super::driver::DriverError;
+use anyhow::Result;
 
 pub const LED_COUNT: usize = 8 * 8;
 pub trait Leds {
-    fn update(&mut self, colors: [Color; LED_COUNT]) -> Result<(), DriverError>;
+    fn update(&mut self, colors: [Color; LED_COUNT]) -> Result<()>;
 }
 
 #[derive(Clone, Copy)]

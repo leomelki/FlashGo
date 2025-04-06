@@ -1,14 +1,16 @@
+use anyhow::Result;
+
 use crate::drivers::{
-    driver::{delay_ms, DriverError},
+    driver::delay_ms,
     mic::{Mic, MIC_ANALYSIS_CONFIG},
 };
 
-pub struct MicReader {
-    mic: Box<dyn Mic>,
+pub struct MicReader<M> {
+    mic: M,
 }
 
-impl MicReader {
-    pub fn new(mic: Box<dyn Mic>) -> Self {
+impl<M: Mic> MicReader<M> {
+    pub fn new(mic: M) -> Self {
         MicReader { mic }
     }
 
@@ -54,7 +56,7 @@ impl MicReader {
         // log::info!("{:?}", amplitudes);
     }
 
-    pub fn read_buffer_process(&mut self) -> Result<(), DriverError> {
+    pub fn read_buffer_process(&mut self) -> Result<()> {
         let start = std::time::Instant::now();
 
         let mut buffer = self.mic.read_buffer()?;

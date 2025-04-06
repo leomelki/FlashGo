@@ -1,9 +1,9 @@
 use std::time::Instant;
 
-use super::super::driver::DriverError;
 use super::super::mic::Mic;
 use super::super::mic::MIC_ANALYSIS_CONFIG;
 
+use anyhow::Result;
 use esp_idf_svc::hal::{
     adc::{
         attenuation::DB_11,
@@ -24,10 +24,7 @@ impl<Pin> MicESPImpl<Pin>
 where
     Pin: ADCPin,
 {
-    pub fn new(
-        pin: Pin,
-        adc: impl Peripheral<P = Pin::Adc> + 'static,
-    ) -> Result<Self, DriverError> {
+    pub fn new(pin: Pin, adc: impl Peripheral<P = Pin::Adc> + 'static) -> Result<Self> {
         let adc_driver = AdcDriver::new(adc)?;
         let adc_config: AdcChannelConfig = AdcChannelConfig {
             calibration: true,
@@ -47,7 +44,7 @@ impl<Pin> Mic for MicESPImpl<Pin>
 where
     Pin: ADCPin,
 {
-    fn read_buffer(&mut self) -> Result<[f32; MIC_ANALYSIS_CONFIG.buffer_size], DriverError> {
+    fn read_buffer(&mut self) -> Result<[f32; MIC_ANALYSIS_CONFIG.buffer_size]> {
         //respect the sample rate
         let sample_period = 1_000_000_000 / MIC_ANALYSIS_CONFIG.sample_rate;
         for x in self.buffer.iter_mut().take(MIC_ANALYSIS_CONFIG.buffer_size) {

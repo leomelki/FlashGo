@@ -33,7 +33,8 @@
       "description": "Select the build mode:",
       "options": [
         "release",
-        "debug"
+        "debug",
+        "web"
       ],
       "default": "release"
     }
