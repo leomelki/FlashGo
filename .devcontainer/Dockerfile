@@ -64,4 +64,6 @@ RUN rustup default esp
 # Activate ESP environment
 RUN echo "source /home/${CONTAINER_USER}/export-esp.sh" >> ~/.bashrc
 
+RUN cargo install wasm-pack
+
 CMD [ "/bin/bash" ]

@@ -10,6 +10,10 @@ rust-version = "1.77"
 name = "flashgo-std"
 harness = false      # do not use the built in cargo test harness -> resolve rust-analyzer errors
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+path = "src/main.rs"
+
 [profile.release]
 opt-level = "s"
 
@@ -27,7 +31,12 @@ micropb = "0.1.0"
 microfft = "0.6.0"
 embassy-futures = "0.1.1"
 wasm-bindgen = { version = "0.2.100", optional = true }
-esp-idf-svc = { version = "0.49", default-features = false, features=["native", "binstart", "std", "alloc"], optional = true }
+esp-idf-svc = { version = "0.49", default-features = false, features = [
+    "native",
+    "binstart",
+    "std",
+    "alloc",
+], optional = true }
 anyhow = "1.0.97"
 
 [build-dependencies]

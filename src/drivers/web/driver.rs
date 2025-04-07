@@ -9,6 +9,11 @@ extern "C" {
     fn console_log(message: &str);
 }
 
+#[cfg(feature = "wasm")]
+#[wasm_bindgen::prelude::wasm_bindgen]
+pub fn start() -> Result<(), wasm_bindgen::JsValue> {
+    crate::main().map_err(|e| wasm_bindgen::JsValue::from_str(&e.to_string()))
+}
 struct ConsoleLogger;
 
 impl log::Log for ConsoleLogger {
