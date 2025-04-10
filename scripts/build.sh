@@ -15,7 +15,7 @@ case "$1" in
     ;;
 "web")
     rustup default stable
-    wasm-pack build --target web . -F wasm
+    wasm-pack build --dev --no-pack --target web . -F wasm
     ;;
 *)
     echo "Wrong argument. Only \"debug\"/\"release\" arguments are supported"
