@@ -9,12 +9,14 @@ use anyhow::Result;
 use drivers::leds::Color;
 use leds::leds_controller::LedsController;
 
+#[cfg(feature = "esp")]
 fn main() -> Result<()> {
     embassy_futures::block_on(init())
 }
 
 async fn init() -> Result<()> {
     let (leds, mic) = crate::drivers::driver::create_drivers()?;
+    log::info!("Starting ESP32");
 
     let mut led_controller = LedsController::new(leds)?;
 
