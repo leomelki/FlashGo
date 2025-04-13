@@ -44,7 +44,7 @@ impl<Pin> Mic for MicESPImpl<Pin>
 where
     Pin: ADCPin,
 {
-    fn read_buffer(&mut self) -> Result<[f32; MIC_ANALYSIS_CONFIG.buffer_size]> {
+    async fn read_buffer(&mut self) -> Result<[f32; MIC_ANALYSIS_CONFIG.buffer_size]> {
         //respect the sample rate
         let sample_period = 1_000_000_000 / MIC_ANALYSIS_CONFIG.sample_rate;
         for x in self.buffer.iter_mut().take(MIC_ANALYSIS_CONFIG.buffer_size) {

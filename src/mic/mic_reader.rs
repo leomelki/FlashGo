@@ -1,7 +1,7 @@
 use anyhow::Result;
 
 use crate::drivers::{
-    driver::delay_ms,
+    driver::{self, delay_ms, Instant},
     mic::{Mic, MIC_ANALYSIS_CONFIG},
 };
 
@@ -56,10 +56,10 @@ impl<M: Mic> MicReader<M> {
         // log::info!("{:?}", amplitudes);
     }
 
-    pub fn read_buffer_process(&mut self) -> Result<()> {
-        let start = std::time::Instant::now();
+    pub async fn read_buffer_process(&mut self) -> Result<()> {
+        let start = Instant::now();
 
-        let mut buffer = self.mic.read_buffer()?;
+        let mut buffer = self.mic.read_buffer().await?;
 
         let elapsed = start.elapsed();
 
@@ -72,7 +72,7 @@ impl<M: Mic> MicReader<M> {
                 * 100.0
         );
 
-        delay_ms(1);
+        delay_ms(1).await;
         // log::info!("Elapsed after wait: {:?}", elapsed.as_millis());
 
         self.analyze_fft(&mut buffer);

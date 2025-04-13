@@ -11,8 +11,10 @@ extern "C" {
 
 #[cfg(feature = "wasm")]
 #[wasm_bindgen::prelude::wasm_bindgen]
-pub fn start() -> Result<(), wasm_bindgen::JsValue> {
-    crate::main().map_err(|e| wasm_bindgen::JsValue::from_str(&e.to_string()))
+pub async fn start() -> Result<(), wasm_bindgen::JsValue> {
+    crate::init()
+        .await
+        .map_err(|e| wasm_bindgen::JsValue::from_str(&e.to_string()))
 }
 struct ConsoleLogger;
 

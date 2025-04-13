@@ -10,6 +10,10 @@ use drivers::leds::Color;
 use leds::leds_controller::LedsController;
 
 fn main() -> Result<()> {
+    embassy_futures::block_on(init())
+}
+
+async fn init() -> Result<()> {
     let (leds, mic) = crate::drivers::driver::create_drivers()?;
 
     let mut led_controller = LedsController::new(leds)?;
@@ -26,7 +30,7 @@ fn main() -> Result<()> {
 
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
     loop {
-        mic_reader.read_buffer_process()?;
+        mic_reader.read_buffer_process().await?;
     }
     Ok(())
 }
