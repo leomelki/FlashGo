@@ -6,6 +6,7 @@ use super::mic::MicSimImpl;
 
 #[wasm_bindgen]
 extern "C" {
+    #[wasm_bindgen(js_namespace = console, js_name = debug)]
     fn console_log(message: &str);
 }
 
