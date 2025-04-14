@@ -20,7 +20,7 @@ async fn init() -> Result<()> {
 
     let mut led_controller = LedsController::new(leds)?;
 
-    led_controller.set_color(3, 1, Color::red());
+    led_controller.set_color(3, 1, Color::blue());
     led_controller.set_color(3, 2, Color::red());
     led_controller.set_color(3, 3, Color::red());
     led_controller.set_color(3, 4, Color::red());

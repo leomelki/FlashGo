@@ -1,7 +1,7 @@
 use anyhow::Result;
 
 use crate::drivers::{
-    driver::{self, delay_ms, Instant},
+    driver::{delay_ms, log_data, Instant},
     mic::{Mic, MIC_ANALYSIS_CONFIG},
 };
 
@@ -22,38 +22,26 @@ impl<M: Mic> MicReader<M> {
             *x -= mean;
         }
 
-        let spectrum = microfft::real::rfft_256(buffer);
+        let spectrum = microfft::real::rfft_512(buffer);
 
         spectrum[0].im = 0.0;
 
         // the spectrum has a spike at index `signal_freq`
         let amplitudes: Vec<_> = spectrum.iter().map(|c| c.norm_sqr() as u32).collect();
 
-        // let max_amplitude = amplitudes.iter().max().unwrap();
-        // let max_amplitude_index = amplitudes.iter().position(|x| x == max_amplitude).unwrap();
-
-        // // convert to frequency
-        // let signal_freq =
-        //     max_amplitude_index * MIC_ANALYSIS_CONFIG.sample_rate / MIC_ANALYSIS_CONFIG.buffer_size;
-
-        // log::info!("Signal frequency: {} Hz", signal_freq);
-
         let index_80hz = 80 * MIC_ANALYSIS_CONFIG.buffer_size / MIC_ANALYSIS_CONFIG.sample_rate;
 
-        let bass_volume = amplitudes.iter().take(index_80hz).sum::<u32>() / index_80hz as u32;
+        let index_40hz = 30 * MIC_ANALYSIS_CONFIG.buffer_size / MIC_ANALYSIS_CONFIG.sample_rate;
 
-        // log::info!("Bass volume: {}", bass_volume);
-        log::info!("{}", bass_volume);
+        // between 40 and 80 hz
+        let bass_volume = amplitudes
+            .iter()
+            .skip(index_40hz)
+            .take(index_80hz - index_40hz)
+            .sum::<u32>()
+            / (index_80hz - index_40hz) as u32;
 
-        // let other_volume = amplitudes.iter().skip(index_80hz).sum::<u32>()
-        //     / (MIC_ANALYSIS_CONFIG.buffer_size - index_80hz) as u32;
-
-        // // log::info!("Other volume: {}", other_volume);
-
-        // let ratio = bass_volume as f32 / other_volume as f32;
-
-        // print the amplitudes
-        // log::info!("{:?}", amplitudes);
+        log_data("bass_volume", bass_volume as f32);
     }
 
     pub async fn read_buffer_process(&mut self) -> Result<()> {
@@ -61,24 +49,12 @@ impl<M: Mic> MicReader<M> {
 
         let mut buffer = self.mic.read_buffer().await?;
 
-        let elapsed = start.elapsed();
-
-        let sample_period = 1_000_000_000 / MIC_ANALYSIS_CONFIG.sample_rate;
-        log::info!(
-            "Elapsed: {:?}ns and should be {:?}. It is {:?}%",
-            elapsed.as_nanos(),
-            sample_period * MIC_ANALYSIS_CONFIG.buffer_size,
-            (elapsed.as_nanos() as f32 / (sample_period * MIC_ANALYSIS_CONFIG.buffer_size) as f32)
-                * 100.0
-        );
-
         delay_ms(1).await;
-        // log::info!("Elapsed after wait: {:?}", elapsed.as_millis());
 
         self.analyze_fft(&mut buffer);
 
         let elapsed = start.elapsed();
-        log::info!("Freq: {:?} Hz", 1000 / elapsed.as_millis());
+        log_data("polling_frequency_hz", 1000.0 / elapsed.as_millis() as f32);
 
         Ok(())
     }

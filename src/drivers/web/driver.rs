@@ -38,3 +38,8 @@ pub fn new() -> Result<(LedsSimImpl, MicSimImpl)> {
 
     Ok((LedsSimImpl::new(), MicSimImpl::new()))
 }
+
+#[wasm_bindgen]
+extern "C" {
+    pub fn log_data_js(key: &str, value: f32);
+}

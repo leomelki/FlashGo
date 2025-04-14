@@ -29,3 +29,14 @@ pub async fn delay_ms(ms: u32) {
         embassy_time::Timer::after_millis(ms as u64).await;
     }
 }
+
+pub fn log_data(key: &str, value: f32) {
+    #[cfg(feature = "esp")]
+    {
+        log::info!("{}: {}", key, value);
+    }
+    #[cfg(feature = "wasm")]
+    {
+        super::web::driver::log_data_js(key, value);
+    }
+}
