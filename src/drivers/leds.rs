@@ -1,7 +1,8 @@
 use anyhow::Result;
 
 pub const LED_COUNT: usize = 8 * 8;
-pub trait Leds {
+
+pub trait Leds: Send + Sync {
     fn update(&mut self, colors: [Color; LED_COUNT]) -> Result<()>;
 }
 

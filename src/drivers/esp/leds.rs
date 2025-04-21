@@ -6,6 +6,7 @@ use esp_idf_svc::hal::rmt::RmtChannel;
 use super::super::leds::Leds;
 use super::super::leds::{Color, LED_COUNT};
 use super::leds_driver::Ws2812Esp32RmtDriver;
+
 pub struct LedsESPImpl {
     encoder_driver: Ws2812Esp32RmtDriver<'static>,
 }

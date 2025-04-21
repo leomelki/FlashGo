@@ -7,7 +7,7 @@ pub struct Config {
 
 pub const MIC_ANALYSIS_CONFIG: Config = Config {
     sample_rate: 44100 / 4,
-    buffer_size: 1024 / 2,
+    buffer_size: 1024,
 };
 
 pub trait Mic {

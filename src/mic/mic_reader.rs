@@ -22,7 +22,7 @@ impl<M: Mic> MicReader<M> {
             *x -= mean;
         }
 
-        let spectrum = microfft::real::rfft_512(buffer);
+        let spectrum = microfft::real::rfft_1024(buffer);
 
         spectrum[0].im = 0.0;
 
@@ -38,8 +38,8 @@ impl<M: Mic> MicReader<M> {
             .iter()
             .skip(index_40hz)
             .take(index_80hz - index_40hz)
-            .sum::<u32>()
-            / (index_80hz - index_40hz) as u32;
+            .sum::<u32>() as f32
+            / (index_80hz - index_40hz) as f32;
 
         log_data("bass_volume", bass_volume as f32);
     }

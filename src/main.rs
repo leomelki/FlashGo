@@ -1,13 +1,13 @@
 #![allow(clippy::needless_lifetimes)]
+mod animations;
 mod consts;
 mod drivers;
 mod leds;
 mod mic;
 mod server;
 
+use animations::thread::{messages::Message, thread::AnimationThread};
 use anyhow::Result;
-use drivers::leds::Color;
-use leds::leds_controller::LedsController;
 
 #[cfg(feature = "esp")]
 fn main() -> Result<()> {
@@ -18,17 +18,8 @@ async fn init() -> Result<()> {
     let (leds, mic) = crate::drivers::driver::create_drivers()?;
     log::info!("Starting ESP32");
 
-    let mut led_controller = LedsController::new(leds)?;
-
-    led_controller.set_color(3, 1, Color::blue());
-    led_controller.set_color(3, 2, Color::red());
-    led_controller.set_color(3, 3, Color::red());
-    led_controller.set_color(3, 4, Color::red());
-    led_controller.set_color(3, 5, Color::red());
-    led_controller.set_color(2, 5, Color::red());
-    led_controller.set_color(1, 5, Color::red());
-    led_controller.set_color(0, 0, Color::red());
-    led_controller.update()?;
+    let mut animation_thread = AnimationThread::init(leds);
+    animation_thread.send(Message::Init(1));
 
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
     loop {
