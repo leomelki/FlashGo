@@ -1,12 +1,9 @@
 use crate::{
-    drivers::{
-        driver,
-        leds::{Color, Leds},
-    },
+    drivers::leds::{Color, Leds},
     leds::leds_controller::LedsController,
 };
 
-use super::{animation::Animation, thread::messages::Message};
+use super::{animations::animation::Animation, thread::messages::Message}; 
 
 pub struct AnimationController<L> {
     current: Option<Box<dyn Animation>>,
@@ -30,8 +27,8 @@ impl<L: Leds> AnimationController<L> {
         match message {
             Message::Init(animation_id) => {
                 log::info!("AnimationController inited: {}", animation_id);
-                // self.leds_controller.set_color(0, 0, Color::green());
-                // self.leds_controller.update().unwrap();
+                self.leds_controller.set_color(0, 0, Color::green());
+                self.leds_controller.update().unwrap();
             }
         }
     }

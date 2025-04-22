@@ -17,7 +17,6 @@ where
     Pin: ADCPin,
 {
     channel: AdcChannelDriver<'static, Pin, AdcDriver<'static, Pin::Adc>>,
-    buffer: Box<[f32; MIC_ANALYSIS_CONFIG.buffer_size]>,
 }
 
 impl<Pin> MicESPImpl<Pin>
@@ -33,10 +32,7 @@ where
         };
         let channel = AdcChannelDriver::new(adc_driver, pin, &adc_config)?;
 
-        Ok(Self {
-            channel,
-            buffer: Box::new([0f32; MIC_ANALYSIS_CONFIG.buffer_size]),
-        })
+        Ok(Self { channel })
     }
 }
 

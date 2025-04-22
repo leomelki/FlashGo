@@ -6,6 +6,7 @@ use super::{
     messages::Message,
 };
 use crate::drivers::{driver, leds::Leds};
+use std::thread::Builder;
 
 pub struct AnimationThread {
     prod: Producer<'static, QUEUE_SIZE>,
@@ -35,13 +36,18 @@ impl AnimationThread {
         leds: impl Leds + 'static,
     ) -> Self {
         // Run the task in a separate thread without blocking
-        std::thread::spawn(move || {
-            let animation_task = async {
-                run_loop(cons, leds).await;
-            };
 
-            esp_idf_svc::hal::task::block_on(animation_task);
-        });
+        Builder::new()
+            .name("animation_thread".into())
+            // .stack_size(1000)
+            .spawn(move || {
+                let animation_task = async {
+                    run_loop(cons, leds).await;
+                };
+
+                esp_idf_svc::hal::task::block_on(animation_task);
+            })
+            .expect("failed to spawn thread");
         Self { prod }
     }
 
@@ -64,7 +70,7 @@ async fn run_loop(cons: Consumer<'static, QUEUE_SIZE>, leds: impl Leds) {
     let mut controller = AnimationController::new(leds);
     let mut cons = cons;
     loop {
-        //Handle all messages waiting in the queue
+        // Handle all messages waiting in the queue
         while let Some(message) = consume(&mut cons) {
             controller.handle_message(message);
         }

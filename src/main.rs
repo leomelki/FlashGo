@@ -1,13 +1,12 @@
 #![allow(clippy::needless_lifetimes)]
-mod animations;
 mod consts;
 mod drivers;
 mod leds;
 mod mic;
 mod server;
 
-use animations::thread::{messages::Message, thread::AnimationThread};
 use anyhow::Result;
+use leds::thread::{messages::Message, thread::AnimationThread};
 
 #[cfg(feature = "esp")]
 fn main() -> Result<()> {
