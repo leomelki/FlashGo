@@ -54,7 +54,8 @@ RUN if [ -n "${GITHUB_TOKEN}" ]; then export GITHUB_TOKEN=${GITHUB_TOKEN}; fi  \
     && ${HOME}/.cargo/bin/espup install\
     --targets "${ESP_BOARD}" \
     --log-level debug \
-    --export-file /home/${CONTAINER_USER}/export-esp.sh
+    --export-file /home/${CONTAINER_USER}/export-esp.sh \
+    --toolchain-version 1.84.0
 
 # Set default toolchain
 RUN rustup default esp
@@ -62,5 +63,7 @@ RUN rustup default esp
 
 # Activate ESP environment
 RUN echo "source /home/${CONTAINER_USER}/export-esp.sh" >> ~/.bashrc
+
+RUN cargo install wasm-pack
 
 CMD [ "/bin/bash" ]

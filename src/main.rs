@@ -1,70 +1,28 @@
 #![allow(clippy::needless_lifetimes)]
 mod consts;
-mod core;
+mod drivers;
 mod leds;
 mod mic;
 mod server;
 
-use std::sync::Arc;
-use std::sync::OnceLock;
-use std::sync::RwLock;
-use std::thread::Builder;
+use anyhow::Result;
+use leds::thread::{messages::Message, thread::AnimationThread};
 
-use esp_idf_svc::hal::adc::attenuation::DB_11;
-use esp_idf_svc::hal::adc::oneshot::config::AdcChannelConfig;
-use esp_idf_svc::hal::adc::oneshot::AdcChannelDriver;
-use esp_idf_svc::hal::adc::oneshot::AdcDriver;
-use esp_idf_svc::hal::delay::Delay;
-use esp_idf_svc::hal::gpio::Gpio33;
-use esp_idf_svc::hal::peripheral::Peripheral;
+#[cfg(feature = "esp")]
+fn main() -> Result<()> {
+    embassy_futures::block_on(init())
+}
 
-use esp_idf_svc::hal::peripherals::Peripherals;
-use esp_idf_svc::sys::EspError;
-use leds::leds_controller::LedsController;
+async fn init() -> Result<()> {
+    let (leds, mic) = crate::drivers::driver::create_drivers()?;
+    log::info!("Starting ESP32");
 
-fn main() -> Result<(), EspError> {
-    // It is necessary to call this function once. Otherwise some patches to the runtime
-    // implemented by esp-idf-sys might not link properly. See https://github.com/esp-rs/esp-idf-template/issues/71
-    esp_idf_svc::sys::link_patches();
+    let mut animation_thread = AnimationThread::init(leds);
+    animation_thread.send(Message::Init(1));
 
-    // Bind the log crate to the ESP Logging facilities
-    esp_idf_svc::log::EspLogger::initialize_default();
-
-    log::info!("Hello, world!");
-
-    let peripherals = Peripherals::take()?;
-    let mut led_controller =
-        LedsController::new(peripherals.rmt.channel0, peripherals.pins.gpio23)?;
-
-    led_controller.set_color(3, 1, leds::color::Color::RED);
-    led_controller.set_color(3, 2, leds::color::Color::RED);
-    led_controller.set_color(3, 3, leds::color::Color::RED);
-    led_controller.set_color(3, 4, leds::color::Color::RED);
-    led_controller.set_color(3, 5, leds::color::Color::RED);
-    led_controller.set_color(2, 5, leds::color::Color::RED);
-    led_controller.set_color(1, 5, leds::color::Color::RED);
-    led_controller.set_color(0, 0, leds::color::Color::RED);
-    led_controller.update()?;
-
-    log::info!("1!");
-
-    unsafe {
-        let remaining_ram = esp_idf_svc::sys::esp_get_free_heap_size();
-        log::info!("Remaining RAM 1: {}", remaining_ram);
-    }
-    let mut mic_reader = mic::micreader::MicReader::new(peripherals.pins.gpio35, peripherals.adc1)?;
-
-    unsafe {
-        let remaining_ram = esp_idf_svc::sys::esp_get_free_heap_size();
-        log::info!("Remaining RAM 2: {}", remaining_ram);
-    }
-
+    let mut mic_reader = mic::mic_reader::MicReader::new(mic);
     loop {
-        mic_reader.read_buffer_process()?;
+        mic_reader.read_buffer_process().await?;
     }
-
     Ok(())
-    // let mut mic = mic::mic::Mic::new()?;
-    // mic.start_task(peripherals.pins.gpio33, peripherals.adc1)?;
-    // log::info!("done");
 }

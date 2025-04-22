@@ -6,10 +6,16 @@ which idf.py >/dev/null || {
 
 case "$1" in
 "" | "release")
-    cargo build --release
+    rustup default esp
+    cargo build --release -F esp
     ;;
 "debug")
-    cargo build
+    rustup default esp
+    cargo build -F esp
+    ;;
+"web")
+    rustup default stable
+    wasm-pack build --dev --no-pack --target web . -F wasm
     ;;
 *)
     echo "Wrong argument. Only \"debug\"/\"release\" arguments are supported"

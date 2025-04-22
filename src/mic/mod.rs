@@ -1,2 +1,1 @@
-pub mod mic;
-pub mod micreader;
+pub mod mic_reader;

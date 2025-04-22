@@ -1,4 +1,4 @@
 pub trait Animation {
-    fn animate(&self);
+    fn tick(&self);
     fn init(&self);
 }

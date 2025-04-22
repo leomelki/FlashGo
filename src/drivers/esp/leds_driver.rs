@@ -1,12 +1,12 @@
 // Un-stdified from https://github.com/cat-in-136/ws2812-esp32-rmt-driver/blob/ae9f8b72e77e05cf86bb2c2a9634b8db28e4924c/src/driver/esp32_rmt.rs
 
+use anyhow::Result;
 use core::time::Duration;
 use esp_idf_svc::hal::gpio::OutputPin;
 use esp_idf_svc::hal::peripheral::Peripheral;
 use esp_idf_svc::hal::rmt::config::TransmitConfig;
 use esp_idf_svc::hal::rmt::{PinState, Pulse, RmtChannel, Symbol, TxRmtDriver};
 use esp_idf_svc::hal::units::Hertz;
-use esp_idf_svc::sys::EspError;
 
 /// T0H duration time (0 code, high voltage time)
 const WS2812_T0H_NS: Duration = Duration::from_nanos(400);
@@ -36,7 +36,7 @@ impl Ws2812Esp32RmtItemEncoder {
     /// # Errors
     ///
     /// Returns an error if the clock frequency is invalid or if the RMT item encoder cannot be created.
-    fn new(clock_hz: Hertz) -> Result<Self, EspError> {
+    fn new(clock_hz: Hertz) -> Result<Self> {
         let (bit0, bit1) = (
             Symbol::new(
                 Pulse::new_with_duration(clock_hz, PinState::High, &WS2812_T0H_NS)?,
@@ -98,7 +98,7 @@ impl<'d> Ws2812Esp32RmtDriver<'d> {
     pub fn new<C: RmtChannel>(
         channel: impl Peripheral<P = C> + 'd,
         pin: impl Peripheral<P = impl OutputPin> + 'd,
-    ) -> Result<Self, EspError> {
+    ) -> Result<Self> {
         let config = TransmitConfig::new().clock_divider(1);
         let tx = TxRmtDriver::new(channel, pin, &config)?;
 
@@ -122,7 +122,7 @@ impl<'d> Ws2812Esp32RmtDriver<'d> {
     /// Iteration of `pixel_sequence` happens inside an interrupt handler so beware of side-effects
     /// that don't work in interrupt handlers.
     /// See [esp_idf_hal::rmt::TxRmtDriver#start_iter_blocking()] for details.
-    pub fn write_blocking<'a, 'b, T>(&'a mut self, pixel_sequence: T) -> Result<(), EspError>
+    pub fn write_blocking<'a, 'b, T>(&'a mut self, pixel_sequence: T) -> Result<()>
     where
         'b: 'a,
         T: Iterator<Item = u8> + Send + 'b,
@@ -148,7 +148,7 @@ impl<'d> Ws2812Esp32RmtDriver<'d> {
     /// Iteration of `pixel_sequence` happens inside an interrupt handler so beware of side-effects
     /// that don't work in interrupt handlers.
     /// See [esp_idf_hal::rmt::TxRmtDriver#start_iter()] for details.
-    pub fn write<T>(&'static mut self, pixel_sequence: T) -> Result<(), EspError>
+    pub fn write<T>(&'static mut self, pixel_sequence: T) -> Result<()>
     where
         T: Iterator<Item = u8> + Send + 'static,
     {
