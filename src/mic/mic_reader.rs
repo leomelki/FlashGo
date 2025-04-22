@@ -7,22 +7,26 @@ use crate::drivers::{
 
 pub struct MicReader<M> {
     mic: M,
+    buffer: Box<[f32; MIC_ANALYSIS_CONFIG.buffer_size]>,
 }
 
 impl<M: Mic> MicReader<M> {
     pub fn new(mic: M) -> Self {
-        MicReader { mic }
+        MicReader {
+            mic,
+            buffer: Box::new([0.0; MIC_ANALYSIS_CONFIG.buffer_size]),
+        }
     }
 
-    fn analyze_fft(&self, buffer: &mut [f32; MIC_ANALYSIS_CONFIG.buffer_size]) {
-        let mean = buffer.iter().sum::<f32>() / buffer.len() as f32;
+    fn analyze_fft(&mut self) {
+        let mean = self.buffer.iter().sum::<f32>() / self.buffer.len() as f32;
 
         // subtract the mean
-        for x in buffer.iter_mut() {
+        for x in self.buffer.iter_mut() {
             *x -= mean;
         }
 
-        let spectrum = microfft::real::rfft_1024(buffer);
+        let spectrum = microfft::real::rfft_1024(&mut self.buffer);
 
         spectrum[0].im = 0.0;
 
@@ -47,11 +51,11 @@ impl<M: Mic> MicReader<M> {
     pub async fn read_buffer_process(&mut self) -> Result<()> {
         let start = Instant::now();
 
-        let mut buffer = self.mic.read_buffer().await?;
+        self.mic.read_buffer(&mut self.buffer).await?;
 
         delay_ms(1).await;
 
-        self.analyze_fft(&mut buffer);
+        self.analyze_fft();
 
         let elapsed = start.elapsed();
         log_data("polling_frequency_hz", 1000.0 / elapsed.as_millis() as f32);

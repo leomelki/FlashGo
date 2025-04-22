@@ -11,5 +11,8 @@ pub const MIC_ANALYSIS_CONFIG: Config = Config {
 };
 
 pub trait Mic {
-    async fn read_buffer(&mut self) -> Result<[f32; MIC_ANALYSIS_CONFIG.buffer_size]>;
+    async fn read_buffer(
+        &mut self,
+        buffer: &mut [f32; MIC_ANALYSIS_CONFIG.buffer_size],
+    ) -> Result<()>;
 }

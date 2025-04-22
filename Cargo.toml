@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = ["leomelki <melkileo@gmail.com>"]
 edition = "2021"
 resolver = "2"
-rust-version = "1.77"
+rust-version = "1.76.0"
 
 [[bin]]
 name = "flashgo-std"

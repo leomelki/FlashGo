@@ -17,7 +17,7 @@ where
     Pin: ADCPin,
 {
     channel: AdcChannelDriver<'static, Pin, AdcDriver<'static, Pin::Adc>>,
-    buffer: [f32; MIC_ANALYSIS_CONFIG.buffer_size],
+    buffer: Box<[f32; MIC_ANALYSIS_CONFIG.buffer_size]>,
 }
 
 impl<Pin> MicESPImpl<Pin>
@@ -35,7 +35,7 @@ where
 
         Ok(Self {
             channel,
-            buffer: [0f32; MIC_ANALYSIS_CONFIG.buffer_size],
+            buffer: Box::new([0f32; MIC_ANALYSIS_CONFIG.buffer_size]),
         })
     }
 }
@@ -44,10 +44,13 @@ impl<Pin> Mic for MicESPImpl<Pin>
 where
     Pin: ADCPin,
 {
-    async fn read_buffer(&mut self) -> Result<[f32; MIC_ANALYSIS_CONFIG.buffer_size]> {
+    async fn read_buffer(
+        &mut self,
+        buffer: &mut [f32; MIC_ANALYSIS_CONFIG.buffer_size],
+    ) -> Result<()> {
         //respect the sample rate
         let sample_period = 1_000_000_000 / MIC_ANALYSIS_CONFIG.sample_rate;
-        for x in self.buffer.iter_mut().take(MIC_ANALYSIS_CONFIG.buffer_size) {
+        for x in buffer.iter_mut().take(MIC_ANALYSIS_CONFIG.buffer_size) {
             let start_read = Instant::now();
             *x = self.channel.read()? as f32;
             while start_read.elapsed().as_nanos() < sample_period as u128 {
@@ -55,6 +58,6 @@ where
             }
         }
 
-        Ok(self.buffer)
+        Ok(())
     }
 }

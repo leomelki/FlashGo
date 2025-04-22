@@ -17,16 +17,18 @@ impl MicSimImpl {
 }
 
 impl Mic for MicSimImpl {
-    async fn read_buffer(&mut self) -> Result<[f32; MIC_ANALYSIS_CONFIG.buffer_size]> {
-        let buffer = read_buffer_js(
+    async fn read_buffer(
+        &mut self,
+        buffer: &mut [f32; MIC_ANALYSIS_CONFIG.buffer_size],
+    ) -> Result<()> {
+        let buffer_js = read_buffer_js(
             MIC_ANALYSIS_CONFIG.buffer_size,
             MIC_ANALYSIS_CONFIG.sample_rate,
         )
         .await;
-        let js_array = Float32Array::from(buffer);
+        let js_array = Float32Array::from(buffer_js);
 
-        let mut result = [0.0; MIC_ANALYSIS_CONFIG.buffer_size];
-        js_array.copy_to(&mut result);
-        Ok(result)
+        js_array.copy_to(buffer);
+        Ok(())
     }
 }
