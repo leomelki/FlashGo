@@ -2,6 +2,7 @@
 mod consts;
 mod drivers;
 mod leds;
+mod macros;
 mod mic;
 mod server;
 
@@ -9,8 +10,15 @@ use anyhow::Result;
 use leds::thread::{messages::Message, thread::AnimationThread};
 
 #[cfg(feature = "esp")]
-fn main() -> Result<()> {
-    embassy_futures::block_on(init())
+#[embassy_executor::main]
+async fn main(spawner: embassy_executor::Spawner) {
+    spawner.spawn(init_esp()).unwrap();
+}
+
+#[cfg(feature = "esp")]
+#[embassy_executor::task]
+async fn init_esp() {
+    init().await.unwrap();
 }
 
 async fn init() -> Result<()> {
@@ -24,5 +32,4 @@ async fn init() -> Result<()> {
     loop {
         mic_reader.read_buffer_process().await?;
     }
-    Ok(())
 }
