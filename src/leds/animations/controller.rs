@@ -1,7 +1,7 @@
 use crate::{
     drivers::leds::{Color, Leds},
     leds::{
-        animations::{self, config::AnimationConfig, DynAnimation},
+        animations::{self, DynAnimation},
         controller::LedsController,
     },
 };
@@ -40,9 +40,7 @@ impl<L: Leds> AnimationController<L> {
             }
             Message::SetAnimation(anim_type) => {
                 log::info!("AnimationController set animation: {:?}", anim_type);
-                self.set_animation(animations::get_animation(anim_type).unwrap()(
-                    &AnimationConfig::new(),
-                ));
+                self.set_animation(animations::get_animation(anim_type).unwrap()());
             }
         }
     }
