@@ -11,26 +11,40 @@ pub enum AnimationType {
 
 use std::{collections::HashMap, sync::LazyLock};
 
-use anim_rainbow::RainbowAnimation;
+use anim_rainbow::{RainbowAnimation, RainbowAnimationConfig};
 use config::AnimationConfig;
 use state::AnimationState;
 
 use super::controller::LedsController;
 
 pub trait Animation {
+    type Config;
     fn tick(&self, state: &AnimationState, leds: &mut LedsController);
-    fn new(config: &AnimationConfig) -> Self
+    fn new(config: &Self::Config) -> Self
     where
         Self: Sized;
 }
 
-type AnimationFactory = fn(config: &AnimationConfig) -> Box<dyn Animation>;
+pub trait DynAnimation {
+    fn tick(&self, state: &AnimationState, leds: &mut LedsController);
+}
+
+impl<T: Animation> DynAnimation for T {
+    fn tick(&self, state: &AnimationState, leds: &mut LedsController) {
+        Animation::tick(self, state, leds)
+    }
+}
+
+type AnimationFactory = fn(config: &AnimationConfig) -> Box<dyn DynAnimation>;
 
 static ANIMATION_REGISTRY: LazyLock<HashMap<AnimationType, AnimationFactory>> =
     LazyLock::new(|| {
         let mut registry: HashMap<AnimationType, AnimationFactory> = HashMap::new();
         registry.insert(AnimationType::Rainbow, |config| {
-            Box::new(RainbowAnimation::new(config))
+            Box::new(RainbowAnimation::new(&RainbowAnimationConfig {
+                speed: 100.0,
+                progressive: true,
+            }))
         });
         registry
     });

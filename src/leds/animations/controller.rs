@@ -1,15 +1,15 @@
 use crate::{
     drivers::leds::{Color, Leds},
     leds::{
-        animations::{self, config::AnimationConfig},
+        animations::{self, config::AnimationConfig, DynAnimation},
         controller::LedsController,
     },
 };
 
-use super::{state::AnimationState, thread::messages::Message, Animation};
+use super::{state::AnimationState, thread::messages::Message};
 
 pub struct AnimationController<L> {
-    current: Option<Box<dyn Animation>>,
+    current: Option<Box<dyn DynAnimation>>,
     leds_controller: LedsController,
     leds: L,
 }
@@ -47,7 +47,7 @@ impl<L: Leds> AnimationController<L> {
         }
     }
 
-    pub fn set_animation(&mut self, animation: Box<dyn Animation>) {
+    pub fn set_animation(&mut self, animation: Box<dyn DynAnimation>) {
         self.current = Some(animation);
     }
 
