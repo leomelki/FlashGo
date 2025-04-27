@@ -26,7 +26,7 @@ impl<M: Mic> MicReader<M> {
             *x -= mean;
         }
 
-        let spectrum = microfft::real::rfft_1024(&mut self.buffer);
+        let spectrum = microfft::real::rfft_512(&mut self.buffer);
 
         spectrum[0].im = 0.0;
 
