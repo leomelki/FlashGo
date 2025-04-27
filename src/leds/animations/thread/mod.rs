@@ -1,77 +1,70 @@
-use bbqueue::{Consumer, Producer};
+pub mod messages;
 
-use super::{
-    super::animation_controller::AnimationController,
-    communicator::{consume, send, BB, QUEUE_SIZE},
-    messages::Message,
-};
+// AnimationThread implementation
+
+use super::controller::AnimationController;
 use crate::drivers::{driver, leds::Leds};
+use messages::Message;
+use std::sync::mpsc::{Receiver, Sender};
 use std::thread::Builder;
 
 pub struct AnimationThread {
-    prod: Producer<'static, QUEUE_SIZE>,
+    tx: Sender<Message>,
 }
 
 impl AnimationThread {
     // Initialize the thread and start it
 
     pub fn send(&mut self, packet: Message) {
-        send(&mut self.prod, packet);
+        self.tx.send(packet);
     }
 
     pub fn init(leds: impl Leds + 'static) -> Self {
-        let (prod, cons) = BB.try_split().unwrap();
+        let (tx, rx) = std::sync::mpsc::channel();
 
         #[cfg(feature = "esp")]
-        return Self::init_esp(prod, cons, leds);
+        return Self::init_esp(tx, rx, leds);
 
         #[cfg(feature = "wasm")]
-        return Self::init_wasm(prod, cons, leds);
+        return Self::init_wasm(tx, rx, leds);
     }
 
     #[cfg(feature = "esp")]
-    fn init_esp(
-        prod: Producer<'static, QUEUE_SIZE>,
-        cons: Consumer<'static, QUEUE_SIZE>,
-        leds: impl Leds + 'static,
-    ) -> Self {
+    fn init_esp(tx: Sender<Message>, rx: Receiver<Message>, leds: impl Leds + 'static) -> Self {
         // Run the task in a separate thread without blocking
+
+        use std::sync::mpsc::Receiver;
 
         Builder::new()
             .name("animation_thread".into())
             // .stack_size(1000)
             .spawn(move || {
                 let animation_task = async {
-                    run_loop(cons, leds).await;
+                    run_loop(rx, leds).await;
                 };
 
                 esp_idf_svc::hal::task::block_on(animation_task);
             })
             .expect("failed to spawn thread");
-        Self { prod }
+        Self { tx }
     }
 
     #[cfg(feature = "wasm")]
-    fn init_wasm(
-        prod: Producer<'static, QUEUE_SIZE>,
-        cons: Consumer<'static, QUEUE_SIZE>,
-        leds: impl Leds + 'static,
-    ) -> Self {
+    fn init_wasm(tx: Sender<Message>, rx: Receiver<Message>, leds: impl Leds + 'static) -> Self {
         let animation_task = async move {
-            run_loop(cons, leds).await;
+            run_loop(rx, leds).await;
         };
         wasm_bindgen_futures::spawn_local(animation_task);
 
-        Self { prod }
+        Self { tx }
     }
 }
 
-async fn run_loop(cons: Consumer<'static, QUEUE_SIZE>, leds: impl Leds) {
+async fn run_loop(rx: Receiver<Message>, leds: impl Leds) {
     let mut controller = AnimationController::new(leds);
-    let mut cons = cons;
     loop {
         // Handle all messages waiting in the queue
-        while let Some(message) = consume(&mut cons) {
+        while let Ok(message) = rx.try_recv() {
             controller.handle_message(message);
         }
         controller.tick();

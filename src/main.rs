@@ -7,7 +7,10 @@ mod mic;
 mod server;
 
 use anyhow::Result;
-use leds::thread::{messages::Message, thread::AnimationThread};
+use leds::animations::{
+    thread::{messages::Message, AnimationThread},
+    AnimationType,
+};
 
 #[cfg(feature = "esp")]
 #[embassy_executor::main]
@@ -27,7 +30,7 @@ async fn init() -> Result<()> {
 
     let mut animation_thread = AnimationThread::init(leds);
     animation_thread.send(Message::Init(1));
-
+    animation_thread.send(Message::SetAnimation(AnimationType::Rainbow));
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
     loop {
         mic_reader.read_buffer_process().await?;
