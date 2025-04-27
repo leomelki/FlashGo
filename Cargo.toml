@@ -63,3 +63,4 @@ embassy-executor = {version = "0.7", optional = true, features = [
 
 [build-dependencies]
 embuild = { version = "0.32.0", optional = true }
+micropb-gen = {version="0.1.0", features = ["format"] }

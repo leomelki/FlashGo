@@ -1,5 +1,5 @@
 mod anim_rainbow;
-pub mod config;
+pub mod configs;
 pub mod controller;
 pub mod state;
 pub mod thread;
@@ -11,8 +11,8 @@ pub enum AnimationType {
 
 use std::{collections::HashMap, sync::LazyLock};
 
-use anim_rainbow::{RainbowAnimation, RainbowAnimationConfig};
-use config::AnimationConfig;
+use anim_rainbow::RainbowAnimation;
+use configs::rainbow_config::RainbowAnimationConfig;
 use state::AnimationState;
 
 use super::controller::LedsController;
@@ -35,12 +35,12 @@ impl<T: Animation> DynAnimation for T {
     }
 }
 
-type AnimationFactory = fn(config: &AnimationConfig) -> Box<dyn DynAnimation>;
+type AnimationFactory = fn() -> Box<dyn DynAnimation>;
 
 static ANIMATION_REGISTRY: LazyLock<HashMap<AnimationType, AnimationFactory>> =
     LazyLock::new(|| {
         let mut registry: HashMap<AnimationType, AnimationFactory> = HashMap::new();
-        registry.insert(AnimationType::Rainbow, |config| {
+        registry.insert(AnimationType::Rainbow, || {
             Box::new(RainbowAnimation::new(&RainbowAnimationConfig {
                 speed: 100.0,
                 progressive: true,

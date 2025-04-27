@@ -3,15 +3,8 @@ use crate::{
     leds::{animations::Animation, controller::LedsController},
 };
 
-use super::{
-    config::{AnimationConfig, AnimationConfigValue},
-    state::AnimationState,
-};
+use super::state::AnimationState;
 
-pub struct RainbowAnimationConfig {
-    pub speed: f32,
-    pub progressive: bool,
-}
 pub struct RainbowAnimation {
     pub speed: f32,
     pub progressive: bool,
@@ -21,7 +14,7 @@ pub struct RainbowAnimation {
 // speed: multiplier for the speed of the animation
 // progressive: if true, the animation will be from left to right, otherwise it will be the whole square
 impl Animation for RainbowAnimation {
-    type Config = RainbowAnimationConfig;
+    type Config = super::configs::rainbow_config::RainbowAnimationConfig;
     fn tick(&self, state: &AnimationState, leds: &mut LedsController) {
         if self.progressive {
             for i in 0..leds.width {
