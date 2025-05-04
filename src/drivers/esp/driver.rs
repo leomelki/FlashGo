@@ -1,8 +1,11 @@
 use super::leds::LedsESPImpl;
 use super::mic::MicESPImpl;
 
+use crate::drivers::ble::Server;
 use anyhow::Result;
 use esp_idf_svc::hal::{gpio::Gpio35, prelude::Peripherals};
+
+pub use super::ble::EspServer;
 
 pub fn new() -> Result<(LedsESPImpl, MicESPImpl<Gpio35>)> {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -17,4 +20,8 @@ pub fn new() -> Result<(LedsESPImpl, MicESPImpl<Gpio35>)> {
     let leds = LedsESPImpl::new(peripherals.rmt.channel0, peripherals.pins.gpio23)?;
     let mic = MicESPImpl::new(peripherals.pins.gpio35, peripherals.adc1)?;
     Ok((leds, mic))
+}
+
+pub fn create_ble_server() -> EspServer {
+    EspServer::new()
 }

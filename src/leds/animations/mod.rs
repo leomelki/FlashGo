@@ -37,8 +37,8 @@ impl<T: Animation> DynAnimation for T {
 
 type AnimationFactory = fn() -> Box<dyn DynAnimation>;
 
-static ANIMATION_REGISTRY: LazyLock<HashMap<AnimationType, AnimationFactory>> =
-    LazyLock::new(|| {
+lazy_static::lazy_static! {
+    static ref ANIMATION_REGISTRY: HashMap<AnimationType, AnimationFactory> = {
         let mut registry: HashMap<AnimationType, AnimationFactory> = HashMap::new();
         registry.insert(AnimationType::Rainbow, || {
             Box::new(RainbowAnimation::new(&RainbowAnimationConfig {
@@ -47,7 +47,8 @@ static ANIMATION_REGISTRY: LazyLock<HashMap<AnimationType, AnimationFactory>> =
             }))
         });
         registry
-    });
+    };
+}
 
 pub fn get_animation(anim_type: AnimationType) -> Option<&'static AnimationFactory> {
     ANIMATION_REGISTRY.get(&anim_type)

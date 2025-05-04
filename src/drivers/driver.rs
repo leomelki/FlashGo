@@ -1,8 +1,10 @@
+use std::sync::Mutex;
 use std::time::Duration;
 
 use super::leds::Leds;
 use super::mic::Mic;
 use anyhow::Result;
+use once_cell::sync::OnceCell;
 
 #[cfg(feature = "wasm")]
 pub type Instant = web_time::Instant;
@@ -39,4 +41,26 @@ pub fn log_data(key: &str, value: f32) {
     {
         super::web::driver::log_data_js(key, value);
     }
+}
+
+#[cfg(feature = "esp")]
+type BleServer = super::esp::driver::EspServer;
+
+#[cfg(not(feature = "esp"))]
+type BleServer = super::web::driver::WebServer;
+
+// Thread-safe singleton for BLE server
+// static BLE_SERVER: OnceCell<Mutex<BleServer>> = OnceCell::new();
+
+// pub fn get_ble_server() -> &'static Mutex<BleServer> {
+//     BLE_SERVER.get_or_init(|| Mutex::new(create_ble_server()))
+// }
+
+pub fn create_ble_server() -> BleServer {
+    #[cfg(feature = "esp")]
+    let ble_server = super::esp::driver::create_ble_server();
+    // #[cfg(feature = "wasm")]
+    // let ble_server = Box::new(super::web::driver::create_ble_server());
+
+    ble_server
 }

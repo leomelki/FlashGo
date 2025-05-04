@@ -22,7 +22,7 @@ debug = true    # Symbols are nice and they don't increase the size on Flash
 opt-level = "z"
 
 [features]
-wasm = ["dep:wasm-bindgen", "dep:gloo-timers", "dep:wasm-bindgen-futures", "dep:web-time"]
+wasm = ["dep:wasm-bindgen", "dep:gloo-timers", "dep:wasm-bindgen-futures", "dep:web-time", "uuid/js"]
 esp = ["embuild/espidf", "dep:esp-idf-svc", "embassy", "dep:embuild"]
 embassy = [
     "esp-idf-svc/embassy-sync",
@@ -48,6 +48,7 @@ anyhow = "1.0.97"
 embassy-sync = "0.6"
 futures = "0.3.31"
 static_cell = "2.1.0"
+lazy_static = "1.4.0"
 
 embedded-hal-async = { version = "1.0.0", optional = true }
 web-time = { version = "1.1.0", optional = true }
@@ -62,6 +63,7 @@ embassy-executor = {version = "0.7", optional = true, features = [
 ] }
 esp32-nimble = "0.7.0"
 uuid = { version = "1.10.0", features = ["v5", "fast-rng"] }
+once_cell = "1.21.3"
 
 [build-dependencies]
 embuild = { version = "0.32.0", optional = true }

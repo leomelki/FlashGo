@@ -3,6 +3,7 @@ pub mod messages;
 // AnimationThread implementation
 
 use super::controller::AnimationController;
+use crate::drivers::ble;
 use crate::drivers::{driver, leds::Leds};
 use messages::Message;
 use std::sync::mpsc::{Receiver, Sender};
@@ -32,8 +33,6 @@ impl AnimationThread {
     #[cfg(feature = "esp")]
     fn init_esp(tx: Sender<Message>, rx: Receiver<Message>, leds: impl Leds + 'static) -> Self {
         // Run the task in a separate thread without blocking
-
-        use std::sync::mpsc::Receiver;
 
         Builder::new()
             .name("animation_thread".into())
