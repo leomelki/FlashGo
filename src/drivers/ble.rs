@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 pub trait Characteristic: UUIDAble {
     fn set_callback(&self, callback: impl Fn(&[u8]) -> Result<()> + Send + Sync + 'static);
-    fn send_value(&self, value: &'static [u8]);
+    fn send_value<'a>(&self, value: &'a [u8]);
 }
 
 pub trait Service: UUIDAble {

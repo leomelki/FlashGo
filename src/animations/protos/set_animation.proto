@@ -2,13 +2,9 @@ syntax = "proto3";
 
 package animations;
 
-import "animations/protos/configs/rainbow_config.proto";
+import "animations/protos/animations/rainbow.proto";
 message SetAnimation {
-    AnimationType animation_type = 1;
-    oneof config {
-        configs.RainbowAnimationConfig rainbow_config = 2;
+    oneof animation {
+        list.RainbowAnimation rainbow_animation = 1;
     }
-}
-enum AnimationType {
-    RAINBOW = 0;
 }

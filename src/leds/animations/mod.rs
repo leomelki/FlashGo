@@ -6,7 +6,7 @@ pub mod thread;
 use anim_rainbow::RainbowAnimation;
 use state::AnimationState;
 
-use crate::protos::animations_::{AnimationType, SetAnimation, SetAnimation_};
+use crate::protos::animations_::{SetAnimation, SetAnimation_};
 
 use super::controller::LedsController;
 
@@ -29,10 +29,10 @@ impl<T: Animation> DynAnimation for T {
 }
 
 pub fn get_animation(set_animation: SetAnimation) -> Option<Box<dyn DynAnimation>> {
-    if let Some(config) = set_animation.config {
-        match config {
-            SetAnimation_::Config::RainbowConfig(config) => {
-                return Some(Box::new(RainbowAnimation::new(&config)));
+    if let Some(animation) = set_animation.animation {
+        match animation {
+            SetAnimation_::Animation::RainbowAnimation(animation) => {
+                return Some(Box::new(RainbowAnimation::new(&animation)));
             }
         }
     } else {

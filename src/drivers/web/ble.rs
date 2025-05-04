@@ -60,7 +60,7 @@ impl Characteristic for BLECharacteristicSimImpl {
         });
     }
 
-    fn send_value(&self, value: &'static [u8]) {
+    fn send_value<'a>(&self, value: &'a [u8]) {
         send_characteristic_value_js(&self.characteristic_id, value);
     }
 }

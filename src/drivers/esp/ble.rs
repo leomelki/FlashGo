@@ -52,7 +52,7 @@ impl ble::Characteristic for EspCharacteristic {
         });
     }
 
-    fn send_value(&self, value: &'static [u8]) {
+    fn send_value<'a>(&self, value: &'a [u8]) {
         // If characteristic is already initialized, update the value
         self.ble_characteristic.lock().set_value(value);
         self.ble_characteristic.lock().notify();

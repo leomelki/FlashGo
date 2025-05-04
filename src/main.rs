@@ -6,12 +6,10 @@ mod leds;
 mod macros;
 mod mic;
 mod protos;
+use animations::orchestrator::AnimationsOrchestrator;
 use anyhow::Result;
 use drivers::{ble::Server, driver};
-use leds::animations::{
-    thread::{messages::Message, AnimationThread},
-    AnimationType,
-};
+use leds::animations::thread::AnimationThread;
 
 #[cfg(feature = "esp")]
 #[embassy_executor::main]
@@ -31,8 +29,13 @@ async fn init() -> Result<()> {
 
     let mut ble_server = driver::create_ble_server();
 
-    let mut animation_thread = AnimationThread::init(leds);
-    animation_thread.send(Message::Init(1));
+    let animation_thread = AnimationThread::init(leds);
+
+    let animation_orchestrator =
+        AnimationsOrchestrator::new(ble_server.register_service("animation")?, animation_thread)?;
+
+    animation_orchestrator.init()?;
+
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
 
     ble_server.start_advertisement();
