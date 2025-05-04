@@ -43,7 +43,7 @@ impl EspCharacteristic {
 }
 
 impl ble::Characteristic for EspCharacteristic {
-    fn set_callback(&mut self, callback: impl Fn(&[u8]) -> Result<()> + Send + Sync + 'static) {
+    fn set_callback(&self, callback: impl Fn(&[u8]) -> Result<()> + Send + Sync + 'static) {
         // Only set the callback if the characteristic is already initialized
         let callback = Box::new(callback);
         self.ble_characteristic.lock().on_write(move |args| {
@@ -52,7 +52,7 @@ impl ble::Characteristic for EspCharacteristic {
         });
     }
 
-    fn send_value(&mut self, value: &'static [u8]) {
+    fn send_value(&self, value: &'static [u8]) {
         // If characteristic is already initialized, update the value
         self.ble_characteristic.lock().set_value(value);
         self.ble_characteristic.lock().notify();

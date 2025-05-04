@@ -44,7 +44,6 @@ pub struct BLECharacteristicSimImpl {
     characteristic_id: String,
     is_read: bool,
     is_write: bool,
-    callback_ref: Rc<RefCell<Box<CallbackFn>>>,
 }
 
 impl UUIDAble for BLECharacteristicSimImpl {
@@ -54,19 +53,16 @@ impl UUIDAble for BLECharacteristicSimImpl {
 }
 
 impl Characteristic for BLECharacteristicSimImpl {
-    fn set_callback(&mut self, callback: impl Fn(&[u8]) -> Result<()> + Send + Sync + 'static) {
-        let boxed_callback = Box::new(callback);
-        *self.callback_ref.borrow_mut() = boxed_callback;
-
+    fn set_callback(&self, callback: impl Fn(&[u8]) -> Result<()> + Send + Sync + 'static) {
         // Register callback in the global registry
         CHARACTERISTICS.with(|chars| {
             chars
                 .borrow_mut()
-                .insert(self.characteristic_id.clone(), self.callback_ref.clone());
+                .insert(self.characteristic_id.clone(), callback);
         });
     }
 
-    fn send_value(&mut self, value: &'static [u8]) {
+    fn send_value(&self, value: &'static [u8]) {
         send_characteristic_value_js(&self.characteristic_id, value);
     }
 }
@@ -101,7 +97,6 @@ impl Service for BLEServiceSimImpl {
             characteristic_id,
             is_read,
             is_write,
-            callback_ref: Rc::new(RefCell::new(Box::new(|_| Ok(())))),
         };
 
         self.characteristics
@@ -118,7 +113,6 @@ impl Clone for BLECharacteristicSimImpl {
             characteristic_id: self.characteristic_id.clone(),
             is_read: self.is_read,
             is_write: self.is_write,
-            callback_ref: self.callback_ref.clone(),
         }
     }
 }

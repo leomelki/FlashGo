@@ -1,4 +1,5 @@
 #![allow(clippy::needless_lifetimes)]
+mod animations;
 mod consts;
 mod drivers;
 mod leds;

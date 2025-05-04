@@ -1,6 +1,6 @@
-use crate::leds::animations::AnimationType;
+use crate::animations::protos::set_animation::{AnimationType, SetAnimation};
 
 pub enum Message {
     Init(u8),
-    SetAnimation(AnimationType),
+    SetAnimation(SetAnimation),
 }

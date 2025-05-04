@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "configs/rainbow_config.proto";
+
+message SetAnimation {
+    AnimationType animation_type = 1;
+    oneof config {
+        RainbowAnimationConfig rainbow_config = 2;
+    }
+}
+enum AnimationType {
+    RAINBOW = 0;
+}

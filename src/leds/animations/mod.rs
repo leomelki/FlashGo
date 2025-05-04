@@ -1,5 +1,4 @@
 mod anim_rainbow;
-pub mod configs;
 pub mod controller;
 pub mod state;
 pub mod thread;
@@ -12,7 +11,6 @@ pub enum AnimationType {
 use std::{collections::HashMap, sync::LazyLock};
 
 use anim_rainbow::RainbowAnimation;
-use configs::rainbow_config::RainbowAnimationConfig;
 use state::AnimationState;
 
 use super::controller::LedsController;

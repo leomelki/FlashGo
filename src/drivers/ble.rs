@@ -2,8 +2,8 @@ use anyhow::Result;
 use uuid::Uuid;
 
 pub trait Characteristic: UUIDAble {
-    fn set_callback(&mut self, callback: impl Fn(&[u8]) -> Result<()> + Send + Sync + 'static);
-    fn send_value(&mut self, value: &'static [u8]);
+    fn set_callback(&self, callback: impl Fn(&[u8]) -> Result<()> + Send + Sync + 'static);
+    fn send_value(&self, value: &'static [u8]);
 }
 
 pub trait Service: UUIDAble {
