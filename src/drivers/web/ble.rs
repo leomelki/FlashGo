@@ -1,11 +1,8 @@
-use crate::drivers::ble::{
-    get_uuid, get_uuid_from_name, Characteristic, Server, Service, UUIDAble,
-};
+use crate::drivers::ble::{get_uuid_from_name, Characteristic, Server, Service, UUIDAble};
 use anyhow::Result;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
-use uuid::Uuid;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 #[wasm_bindgen]
@@ -56,9 +53,10 @@ impl Characteristic for BLECharacteristicSimImpl {
     fn set_callback(&self, callback: impl Fn(&[u8]) -> Result<()> + Send + Sync + 'static) {
         // Register callback in the global registry
         CHARACTERISTICS.with(|chars| {
-            chars
-                .borrow_mut()
-                .insert(self.characteristic_id.clone(), callback);
+            chars.borrow_mut().insert(
+                self.characteristic_id.clone(),
+                Rc::new(RefCell::new(Box::new(callback))),
+            );
         });
     }
 

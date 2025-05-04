@@ -23,7 +23,7 @@ opt-level = "z"
 
 [features]
 wasm = ["dep:wasm-bindgen", "dep:gloo-timers", "dep:wasm-bindgen-futures", "dep:web-time", "uuid/js"]
-esp = ["embuild/espidf", "dep:esp-idf-svc", "embassy", "dep:embuild"]
+esp = ["embuild/espidf", "dep:esp-idf-svc", "embassy", "dep:embuild", "dep:esp32-nimble"]
 embassy = [
     "esp-idf-svc/embassy-sync",
     "esp-idf-svc/embassy-time-driver",
@@ -35,25 +35,22 @@ embassy = [
 
 [dependencies]
 log = { version = "0.4", default-features = false }
-micropb = "0.1.0"
 microfft = { version = "0.6.0", default-features = false, features = ["size-1024"] }
-wasm-bindgen = { version = "0.2.100", optional = true }
-esp-idf-svc = { version = "0.49.1", default-features = false, features = [
-    "native",
-    "binstart",
-    "std",
-    "alloc"
-], optional = true }
 anyhow = "1.0.97"
 embassy-sync = "0.6"
 futures = "0.3.31"
 static_cell = "2.1.0"
 lazy_static = "1.4.0"
+micropb = "0.1.0"
+once_cell = "1.21.3"
+uuid = { version = "1.10.0", features = ["v5", "fast-rng"] }
 
-embedded-hal-async = { version = "1.0.0", optional = true }
 web-time = { version = "1.1.0", optional = true }
+wasm-bindgen = { version = "0.2.100", optional = true }
 wasm-bindgen-futures = { version = "0.4.50", optional = true }
 gloo-timers = { version = "0.3.0", features = ["futures"], optional = true }
+
+embedded-hal-async = { version = "1.0.0", optional = true }
 embassy-futures = { version = "0.1.1", optional = true }
 embassy-time = { version = "0.3", features = ["generic-queue"], optional = true }
 embassy-executor = {version = "0.7", optional = true, features = [
@@ -61,9 +58,13 @@ embassy-executor = {version = "0.7", optional = true, features = [
     "executor-thread",
     "log",
 ] }
-esp32-nimble = "0.7.0"
-uuid = { version = "1.10.0", features = ["v5", "fast-rng"] }
-once_cell = "1.21.3"
+esp32-nimble = { version = "0.7.0", optional = true }
+esp-idf-svc = { version = "0.49.1", default-features = false, features = [
+    "native",
+    "binstart",
+    "std",
+    "alloc"
+], optional = true }
 
 [build-dependencies]
 embuild = { version = "0.32.0", optional = true }

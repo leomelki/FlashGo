@@ -1,6 +1,8 @@
 use anyhow::Result;
 use wasm_bindgen::prelude::wasm_bindgen;
 
+use super::super::ble::Server;
+pub use super::ble::BLEServerSimImpl;
 use super::leds::LedsSimImpl;
 use super::mic::MicSimImpl;
 
@@ -37,6 +39,10 @@ pub fn new() -> Result<(LedsSimImpl, MicSimImpl)> {
     log::set_logger(&ConsoleLogger).unwrap();
 
     Ok((LedsSimImpl::new(), MicSimImpl::new()))
+}
+
+pub fn create_ble_server() -> BLEServerSimImpl {
+    BLEServerSimImpl::new()
 }
 
 #[wasm_bindgen]

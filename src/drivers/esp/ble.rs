@@ -2,7 +2,7 @@ use crate::{
     consts,
     drivers::ble::{
         self, get_uuid as get_generic_uuid, get_uuid_from_name as get_generic_uuid_from_name,
-        Server, UUIDAble,
+        UUIDAble,
     },
 };
 use anyhow::Result;

@@ -9,6 +9,7 @@ use messages::Message;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread::Builder;
 
+#[derive(Clone)]
 pub struct AnimationThread {
     tx: Sender<Message>,
 }

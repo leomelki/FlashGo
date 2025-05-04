@@ -1,5 +1,6 @@
 syntax = "proto3";
 
+package animations.configs;
 message RainbowAnimationConfig {
     float speed = 1;
     bool progressive = 2;

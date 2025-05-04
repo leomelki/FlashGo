@@ -14,7 +14,7 @@ pub struct RainbowAnimation {
 // speed: multiplier for the speed of the animation
 // progressive: if true, the animation will be from left to right, otherwise it will be the whole square
 impl Animation for RainbowAnimation {
-    type Config = super::configs::rainbow_config::RainbowAnimationConfig;
+    type Config = crate::protos::animations_::configs_::RainbowAnimationConfig;
     fn tick(&self, state: &AnimationState, leds: &mut LedsController) {
         if self.progressive {
             for i in 0..leds.width {

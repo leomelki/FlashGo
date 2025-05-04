@@ -5,7 +5,7 @@ mod drivers;
 mod leds;
 mod macros;
 mod mic;
-
+mod protos;
 use anyhow::Result;
 use drivers::{ble::Server, driver};
 use leds::animations::{
@@ -33,7 +33,6 @@ async fn init() -> Result<()> {
 
     let mut animation_thread = AnimationThread::init(leds);
     animation_thread.send(Message::Init(1));
-    animation_thread.send(Message::SetAnimation(AnimationType::Rainbow));
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
 
     ble_server.start_advertisement();
