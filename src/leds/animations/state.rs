@@ -1,5 +1,3 @@
-use std::sync::LazyLock;
-
 use crate::drivers::driver;
 
 pub struct AnimationState {
@@ -7,7 +5,9 @@ pub struct AnimationState {
     pub power: u8,
 }
 
-static START_TIME: LazyLock<driver::Instant> = LazyLock::new(|| driver::Instant::now());
+lazy_static::lazy_static! {
+    static ref START_TIME: driver::Instant = driver::Instant::now();
+}
 
 impl AnimationState {
     pub fn new() -> Self {
