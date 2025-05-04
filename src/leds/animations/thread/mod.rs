@@ -3,8 +3,8 @@ pub mod messages;
 // AnimationThread implementation
 
 use super::controller::AnimationController;
-use crate::drivers::ble;
 use crate::drivers::{driver, leds::Leds};
+use anyhow::Result;
 use messages::Message;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread::Builder;
@@ -16,8 +16,9 @@ pub struct AnimationThread {
 impl AnimationThread {
     // Initialize the thread and start it
 
-    pub fn send(&mut self, packet: Message) {
-        self.tx.send(packet);
+    pub fn send(&self, packet: Message) -> Result<()> {
+        self.tx.send(packet)?;
+        Ok(())
     }
 
     pub fn init(leds: impl Leds + 'static) -> Self {

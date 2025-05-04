@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 use crate::{
     drivers::leds::{Color, Leds},
     leds::{
@@ -23,13 +25,14 @@ impl<L: Leds> AnimationController<L> {
         }
     }
 
-    pub fn tick(&mut self) {
+    pub fn tick(&mut self) -> Result<()> {
         let mut state = AnimationState::new();
         state.update();
         if let Some(animation) = &mut self.current {
             animation.tick(&state, &mut self.leds_controller);
         }
-        self.leds_controller.update(&mut self.leds).unwrap();
+        self.leds_controller.update(&mut self.leds)?;
+        Ok(())
     }
     pub fn handle_message(&mut self, message: Message) {
         match message {
