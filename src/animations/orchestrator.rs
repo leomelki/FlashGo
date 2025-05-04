@@ -39,30 +39,23 @@ impl<S: Service> AnimationsOrchestrator<S> {
 
     pub fn init(&self) -> Result<()> {
         self.animation_thread.send(Message::Init(1))?;
+        self.set_animation(SetAnimation_::Animation::RainbowAnimation(
+            RainbowAnimation {
+                speed: 1.0,
+                progressive: true,
+            },
+        ));
+        Ok(())
+    }
+
+    pub fn set_animation(&self, animation: SetAnimation_::Animation) {
         let set_animation = SetAnimation {
-            animation: Some(SetAnimation_::Animation::RainbowAnimation(
-                RainbowAnimation {
-                    speed: 1.0,
-                    progressive: true,
-                },
-            )),
+            animation: Some(animation),
         };
 
         let mut encoder = PbEncoder::new(Vec::new());
         set_animation.encode(&mut encoder).unwrap();
         let data = encoder.into_writer();
         self.animation_characteristic.send_value(&data);
-        Ok(())
-    }
-
-    pub fn set_animation(&self, animation: SetAnimation) -> Result<()> {
-        self.animation_thread
-            .send(Message::SetAnimation(animation))?;
-        Ok(())
-    }
-
-    pub fn stop(&self) -> Result<()> {
-        self.animation_thread.send(Message::Stop)?;
-        Ok(())
     }
 }
