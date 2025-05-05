@@ -39,9 +39,9 @@ impl<L: Leds> AnimationController<L> {
                 self.leds_controller.set_color(0, 0, Color::green());
                 self.leds_controller.update(&mut self.leds).unwrap();
             }
-            Message::SetAnimation(anim_type) => {
-                log::info!("AnimationController set animation: {:?}", anim_type);
-                // self.set_animation(animations::get_animation(anim_type).unwrap()());
+            Message::SetAnimation(set_animation) => {
+                log::info!("AnimationController set animation");
+                self.set_animation(set_animation);
             }
             Message::Stop => {
                 log::info!("AnimationController stop");

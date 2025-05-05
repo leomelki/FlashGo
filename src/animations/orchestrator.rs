@@ -44,11 +44,11 @@ impl<S: Service> AnimationsOrchestrator<S> {
                 speed: 1.0,
                 progressive: true,
             },
-        ));
+        ))?;
         Ok(())
     }
 
-    pub fn set_animation(&self, animation: SetAnimation_::Animation) {
+    pub fn set_animation(&self, animation: SetAnimation_::Animation) -> Result<()> {
         let set_animation = SetAnimation {
             animation: Some(animation),
         };
@@ -57,5 +57,9 @@ impl<S: Service> AnimationsOrchestrator<S> {
         set_animation.encode(&mut encoder).unwrap();
         let data = encoder.into_writer();
         self.animation_characteristic.send_value(&data);
+
+        self.animation_thread
+            .send(Message::SetAnimation(set_animation))?;
+        Ok(())
     }
 }

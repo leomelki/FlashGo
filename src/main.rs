@@ -34,14 +34,14 @@ async fn init() -> Result<()> {
     let animation_orchestrator =
         AnimationsOrchestrator::new(ble_server.register_service("animation")?, animation_thread)?;
 
-    animation_orchestrator.init()?;
-
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
+
+    animation_orchestrator.init()?;
 
     ble_server.start_advertisement();
 
     loop {
-        mic_reader.read_buffer_process().await?;
-        // driver::delay_ms(100).await;
+        // mic_reader.read_buffer_process().await?;
+        driver::delay_ms(100).await;
     }
 }
