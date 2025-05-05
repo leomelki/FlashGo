@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package animations;
+
+import "animations/protos/animations/rainbow.proto";
+message SetAnimation {
+    oneof animation {
+        list.RainbowAnimation rainbow_animation = 1;
+    }
+}

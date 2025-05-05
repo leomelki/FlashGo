@@ -10,12 +10,10 @@ fn main() {
 
     // Compile all found proto files
     if !proto_files.is_empty() {
-        for file in proto_files {
-            println!("Compiling proto file: {}", file);
-            let file_without_ext = file.trim_end_matches(".proto");
-            gen.compile_protos(&[&file], format!("{}_pb.rs", file_without_ext))
-                .unwrap();
-        }
+        gen.add_protoc_arg("--proto_path=./src");
+
+        // Keep the proto path as is, but modify the file paths
+        gen.compile_protos(&proto_files, "src/protos.rs").unwrap();
     }
 }
 

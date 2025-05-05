@@ -1,16 +1,15 @@
 #![allow(clippy::needless_lifetimes)]
+mod animations;
 mod consts;
 mod drivers;
 mod leds;
 mod macros;
 mod mic;
-mod server;
-
+mod protos;
+use animations::orchestrator::AnimationsOrchestrator;
 use anyhow::Result;
-use leds::animations::{
-    thread::{messages::Message, AnimationThread},
-    AnimationType,
-};
+use drivers::{ble::Server, driver};
+use leds::animations::thread::AnimationThread;
 
 #[cfg(feature = "esp")]
 #[embassy_executor::main]
@@ -28,11 +27,21 @@ async fn init() -> Result<()> {
     let (leds, mic) = crate::drivers::driver::create_drivers()?;
     log::info!("Starting ESP32");
 
-    let mut animation_thread = AnimationThread::init(leds);
-    animation_thread.send(Message::Init(1));
-    animation_thread.send(Message::SetAnimation(AnimationType::Rainbow));
+    let mut ble_server = driver::create_ble_server();
+
+    let animation_thread = AnimationThread::init(leds);
+
+    let animation_orchestrator =
+        AnimationsOrchestrator::new(ble_server.register_service("animation")?, animation_thread)?;
+
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
+
+    animation_orchestrator.init()?;
+
+    ble_server.start_advertisement();
+
     loop {
-        mic_reader.read_buffer_process().await?;
+        // mic_reader.read_buffer_process().await?;
+        driver::delay_ms(100).await;
     }
 }

@@ -1,12 +1,12 @@
+use anyhow::Result;
+
 use crate::{
     drivers::leds::{Color, Leds},
-    leds::{
-        animations::{self, DynAnimation},
-        controller::LedsController,
-    },
+    leds::{animations::DynAnimation, controller::LedsController},
+    protos::animations_::SetAnimation,
 };
 
-use super::{state::AnimationState, thread::messages::Message};
+use super::{get_animation, state::AnimationState, thread::messages::Message};
 
 pub struct AnimationController<L> {
     current: Option<Box<dyn DynAnimation>>,
@@ -23,13 +23,14 @@ impl<L: Leds> AnimationController<L> {
         }
     }
 
-    pub fn tick(&mut self) {
+    pub fn tick(&mut self) -> Result<()> {
         let mut state = AnimationState::new();
         state.update();
         if let Some(animation) = &mut self.current {
             animation.tick(&state, &mut self.leds_controller);
         }
-        self.leds_controller.update(&mut self.leds).unwrap();
+        self.leds_controller.update(&mut self.leds)?;
+        Ok(())
     }
     pub fn handle_message(&mut self, message: Message) {
         match message {
@@ -38,15 +39,19 @@ impl<L: Leds> AnimationController<L> {
                 self.leds_controller.set_color(0, 0, Color::green());
                 self.leds_controller.update(&mut self.leds).unwrap();
             }
-            Message::SetAnimation(anim_type) => {
-                log::info!("AnimationController set animation: {:?}", anim_type);
-                self.set_animation(animations::get_animation(anim_type).unwrap()());
+            Message::SetAnimation(set_animation) => {
+                log::info!("AnimationController set animation");
+                self.set_animation(set_animation);
+            }
+            Message::Stop => {
+                log::info!("AnimationController stop");
+                self.stop();
             }
         }
     }
 
-    pub fn set_animation(&mut self, animation: Box<dyn DynAnimation>) {
-        self.current = Some(animation);
+    pub fn set_animation(&mut self, set_animation: SetAnimation) {
+        self.current = get_animation(set_animation);
     }
 
     pub fn stop(&mut self) {

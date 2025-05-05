@@ -1,3 +1,4 @@
+pub mod ble;
 pub mod driver;
 pub mod espnow;
 pub mod leds;

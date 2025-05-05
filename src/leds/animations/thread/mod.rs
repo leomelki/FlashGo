@@ -4,10 +4,12 @@ pub mod messages;
 
 use super::controller::AnimationController;
 use crate::drivers::{driver, leds::Leds};
+use anyhow::Result;
 use messages::Message;
 use std::sync::mpsc::{Receiver, Sender};
 use std::thread::Builder;
 
+#[derive(Clone)]
 pub struct AnimationThread {
     tx: Sender<Message>,
 }
@@ -15,8 +17,9 @@ pub struct AnimationThread {
 impl AnimationThread {
     // Initialize the thread and start it
 
-    pub fn send(&mut self, packet: Message) {
-        self.tx.send(packet);
+    pub fn send(&self, packet: Message) -> Result<()> {
+        self.tx.send(packet)?;
+        Ok(())
     }
 
     pub fn init(leds: impl Leds + 'static) -> Self {
@@ -32,8 +35,6 @@ impl AnimationThread {
     #[cfg(feature = "esp")]
     fn init_esp(tx: Sender<Message>, rx: Receiver<Message>, leds: impl Leds + 'static) -> Self {
         // Run the task in a separate thread without blocking
-
-        use std::sync::mpsc::Receiver;
 
         Builder::new()
             .name("animation_thread".into())
