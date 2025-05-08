@@ -2,6 +2,7 @@ use std::time::Duration;
 
 use super::leds::Leds;
 use super::mic::Mic;
+use super::sync::Sync;
 use anyhow::Result;
 
 #[cfg(feature = "wasm")]
@@ -10,7 +11,7 @@ pub type Instant = web_time::Instant;
 #[cfg(not(feature = "wasm"))]
 pub type Instant = std::time::Instant;
 
-pub fn create_drivers() -> Result<(impl Leds, impl Mic)> {
+pub fn create_drivers() -> Result<(impl Leds, impl Mic, impl Sync)> {
     #[cfg(feature = "esp")]
     let drivers = super::esp::driver::new()?;
     #[cfg(feature = "wasm")]

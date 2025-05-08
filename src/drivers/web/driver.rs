@@ -5,6 +5,7 @@ use super::super::ble::Server;
 pub use super::ble::BLEServerSimImpl;
 use super::leds::LedsSimImpl;
 use super::mic::MicSimImpl;
+use super::sync::WebSync;
 
 #[wasm_bindgen]
 extern "C" {
@@ -33,12 +34,12 @@ impl log::Log for ConsoleLogger {
     fn flush(&self) {}
 }
 
-pub fn new() -> Result<(LedsSimImpl, MicSimImpl)> {
+pub fn new() -> Result<(LedsSimImpl, MicSimImpl, WebSync)> {
     //set logger to redirect to console
     log::set_max_level(log::LevelFilter::Debug);
     log::set_logger(&ConsoleLogger).unwrap();
 
-    Ok((LedsSimImpl::new(), MicSimImpl::new()))
+    Ok((LedsSimImpl::new(), MicSimImpl::new(), WebSync::new()?))
 }
 
 pub fn create_ble_server() -> BLEServerSimImpl {
