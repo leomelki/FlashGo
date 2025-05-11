@@ -1,5 +1,5 @@
 use crate::drivers::ble::Service;
-use crate::protos::animations_::list_::RainbowAnimation;
+use crate::protos::animations_::list_::rainbow_::RainbowAnimation;
 use crate::protos::animations_::{SetAnimation, SetAnimation_};
 use crate::{
     drivers::ble,

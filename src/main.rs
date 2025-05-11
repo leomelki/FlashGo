@@ -30,8 +30,10 @@ async fn init() -> Result<()> {
     let (leds, mic, sync) = crate::drivers::driver::create_drivers().await.unwrap();
     log::info!("Starting ESP32");
 
-    let devices_syncer = DevicesSyncer::new();
-    devices_syncer.init(sync).await;
+    let sync_box = Box::new(sync);
+
+    let devices_syncer = Box::leak(Box::new(DevicesSyncer::new(sync_box)));
+    devices_syncer.init().await;
 
     let mut ble_server = driver::create_ble_server();
 

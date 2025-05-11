@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package sync;
+
+import "sync/protos/sync.proto";
+import "sync/protos/ack.proto";
+message Packet {
+    oneof packet {
+        sync.Sync sync = 1;
+        ack.Ack ack = 2;
+    }
+}

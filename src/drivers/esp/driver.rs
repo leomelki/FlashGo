@@ -15,8 +15,9 @@ use std::sync::Mutex;
 
 lazy_static! {
     static ref OWN_MAC: Mutex<[u8; 6]> = Mutex::new([0; 6]);
+    static ref IS_MASTER: Mutex<bool> = Mutex::new(false);
 }
-pub const WIFI_CHANNEL: u8 = 6;
+pub const WIFI_CHANNEL: u8 = 7;
 
 pub fn new() -> Result<(LedsESPImpl, MicESPImpl<Gpio35>, EspSync)> {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -31,7 +32,7 @@ pub fn new() -> Result<(LedsESPImpl, MicESPImpl<Gpio35>, EspSync)> {
     let leds = LedsESPImpl::new(peripherals.rmt.channel0, peripherals.pins.gpio23)?;
     let mic = MicESPImpl::new(peripherals.pins.gpio35, peripherals.adc1)?;
 
-    println!("Wi-Fi starting...");
+    log::info!("Wi-Fi starting...");
     // Setup the Wi-Fi driver
     let sys_loop = EspSystemEventLoop::take().unwrap();
     let nvs = EspDefaultNvsPartition::take().unwrap();
@@ -49,11 +50,11 @@ pub fn new() -> Result<(LedsESPImpl, MicESPImpl<Gpio35>, EspSync)> {
 
     set_channel(WIFI_CHANNEL);
 
-    println!("Wi-Fi started!");
+    log::info!("Wi-Fi started!");
 
     // Get and print the device's own MAC address
     let mac_address = get_mac(WifiDeviceId::Sta).unwrap();
-    println!(
+    log::info!(
         "Device MAC address -> {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
         mac_address[0],
         mac_address[1],
@@ -66,6 +67,10 @@ pub fn new() -> Result<(LedsESPImpl, MicESPImpl<Gpio35>, EspSync)> {
     // Update MAC address in thread-safe manner
     if let Ok(mut mac) = OWN_MAC.lock() {
         *mac = mac_address;
+    }
+
+    if let Ok(mut is_master) = IS_MASTER.lock() {
+        *is_master = mac_address == MASTER_MAC;
     }
 
     let sync = EspSync::new(wifi_driver).unwrap();
@@ -84,12 +89,8 @@ pub fn get_mac(interface: WifiDeviceId) -> Result<[u8; 6]> {
 }
 
 pub fn is_master() -> bool {
-    let compare = OWN_MAC
-        .lock()
-        .map(|mac| *mac == MASTER_MAC)
-        .unwrap_or(false);
-    println!("Comparing MAC addresses: {:?}", compare);
-    compare
+    let is_master = IS_MASTER.lock().unwrap();
+    *is_master
 }
 
 pub fn create_ble_server() -> EspServer {

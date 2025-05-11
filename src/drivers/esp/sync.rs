@@ -1,4 +1,6 @@
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 use crate::drivers::{driver, esp::driver::WIFI_CHANNEL};
 
@@ -10,16 +12,19 @@ use esp_idf_svc::wifi::WifiDriver;
 pub struct EspSync {
     pub espnow: Arc<Mutex<EspNow<'static>>>,
     pub wifi: WifiDriver<'static>,
+    pub peers: Arc<Mutex<HashMap<[u8; 6], Instant>>>,
 }
 
 impl EspSync {
     pub fn new(wifi: WifiDriver<'static>) -> Result<Self> {
         let espnow = EspNow::take().unwrap();
         let espnow = Arc::new(Mutex::new(espnow));
+        let peers = Arc::new(Mutex::new(HashMap::new()));
 
         let esp_sync = Self {
             espnow: espnow.clone(),
             wifi,
+            peers,
         };
 
         Ok(esp_sync)
@@ -29,7 +34,7 @@ impl EspSync {
         &self,
         mut recieve_callback: impl FnMut(&[u8], &[u8]) + Send + Sync + 'static,
     ) -> Result<()> {
-        println!("Initializing slave");
+        log::info!("Initializing slave");
 
         // Register callbacks and add peer
         {
@@ -38,8 +43,6 @@ impl EspSync {
             // Register the receive callback to handle incoming messages
             espnow
                 .register_recv_cb(move |mac_address, data| {
-                    println!("Received message from MAC: {:?}", mac_address);
-                    println!("Data length: {} bytes", data.len());
                     recieve_callback(mac_address, data);
                 })
                 .unwrap();
@@ -47,7 +50,7 @@ impl EspSync {
             // Register the send callback
             espnow
                 .register_send_cb(|_mac_addres, status| {
-                    println!("Send status: {:?}", status);
+                    // log::info!("Send status: {:?}", status);
                 })
                 .unwrap();
 
@@ -60,10 +63,15 @@ impl EspSync {
                 ..Default::default()
             };
             espnow.add_peer(peer).unwrap();
-            println!("Peer added: {:?}", MASTER_MAC);
+
+            // Track the master peer
+            let mut peers = self.peers.lock().unwrap();
+            peers.insert(MASTER_MAC, Instant::now());
+
+            log::info!("Peer added: {:?}", MASTER_MAC);
 
             espnow.send(MASTER_MAC, &[0x01]).unwrap();
-            println!("Sent message to master");
+            log::info!("Sent message to master");
         }
 
         Ok(())
@@ -73,7 +81,7 @@ impl EspSync {
         &self,
         recieve_callback: impl Fn(&[u8], &[u8]) + Send + Sync + 'static,
     ) -> Result<()> {
-        println!("Initializing master");
+        log::info!("Initializing master");
 
         // Set up ESP-NOW with broadcast peer and callback
         {
@@ -89,21 +97,49 @@ impl EspSync {
             };
             espnow.add_peer(broadcast).unwrap();
             let espnow_clone = self.espnow.clone();
+            let peers_clone = self.peers.clone();
 
             espnow.register_recv_cb(move |mac_address, data| {
-                println!("Received message from MAC: {:?}", mac_address);
-
                 let mac_address_array = mac_address.try_into().unwrap();
-                // If peer does not exist, add it
-                let espnow = espnow_clone.lock().unwrap();
-                if let Ok(false) = espnow.peer_exists(mac_address_array) {
-                    // Add the peer
-                    let peer = PeerInfo {
-                        peer_addr: mac_address_array,
-                        ..Default::default()
-                    };
-                    espnow.add_peer(peer).unwrap();
-                    println!("Peer added: {:?}", mac_address_array);
+
+                // Check if we should add this peer
+                let should_add_peer = {
+                    let mut peers = peers_clone.lock().unwrap();
+                    let now = Instant::now();
+
+                    match peers.get(&mac_address_array) {
+                        Some(last_added) => {
+                            // Only re-add if it's been more than 10 seconds
+                            if now.duration_since(*last_added) > Duration::from_secs(10) {
+                                peers.insert(mac_address_array, now);
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        None => {
+                            // New peer, add it
+                            peers.insert(mac_address_array, now);
+                            true
+                        }
+                    }
+                };
+
+                // If we should add the peer, do so
+                if should_add_peer {
+                    let espnow = espnow_clone.lock().unwrap();
+                    if let Ok(false) = espnow.peer_exists(mac_address_array) {
+                        // Add the peer
+                        let peer = PeerInfo {
+                            peer_addr: mac_address_array,
+                            channel: WIFI_CHANNEL,
+                            ifidx: esp_idf_svc::sys::wifi_interface_t_WIFI_IF_STA,
+                            encrypt: false,
+                            ..Default::default()
+                        };
+                        espnow.add_peer(peer).unwrap();
+                        log::info!("Peer added: {:?}", mac_address_array);
+                    }
                 }
 
                 recieve_callback(mac_address, data);
