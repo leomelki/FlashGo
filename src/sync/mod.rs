@@ -27,6 +27,7 @@ pub struct DevicesSyncer<T: SyncTrait + 'static> {
     sync: Box<T>,
     device_id: u32,
     delay: Mutex<u64>,
+    master: bool,
 }
 
 struct DevicesSyncerState {
@@ -54,6 +55,7 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
             sync,
             device_id,
             delay: Mutex::new(0),
+            master: driver::is_master(),
         }
     }
 
@@ -75,7 +77,7 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
 
         let message_handler = self.spawn_message_handler(receiver);
 
-        if driver::is_master() {
+        if self.master {
             self.init_master().await;
         } else {
             self.init_slave().await;
@@ -176,7 +178,7 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
 
         // If we are the master, we don't need to update our state
         // We use the same sync packet so that we have a natural delay
-        if driver::is_master() {
+        if self.master {
             return;
         }
 
@@ -192,7 +194,7 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
         let delay = now_micros() - ack.rcv_timestamp;
         // is less than 1 second ( not a bug )
         if delay < 1000000 {
-            if !driver::is_master() {
+            if !self.master {
                 let mut delay_mut = self.delay.lock().unwrap();
                 *delay_mut = delay;
             }
