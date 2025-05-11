@@ -28,8 +28,6 @@ async fn init() -> Result<()> {
     let (leds, mic, sync) = crate::drivers::driver::create_drivers()?;
     log::info!("Starting ESP32");
 
-    sync.init_slave()?;
-
     let mut ble_server = driver::create_ble_server();
 
     let animation_thread = AnimationThread::init(leds);
@@ -44,7 +42,7 @@ async fn init() -> Result<()> {
     ble_server.start_advertisement();
 
     loop {
-        mic_reader.read_buffer_process().await?;
-        // driver::delay_ms(100).await;
+        // mic_reader.read_buffer_process().await?;
+        driver::delay_ms(100).await;
     }
 }

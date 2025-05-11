@@ -14,9 +14,6 @@ impl WebSync {
     pub fn new() -> Result<Self> {
         Ok(Self {})
     }
-}
-
-impl Sync for WebSync {
     fn init_slave(&self) -> Result<()> {
         init_web_sync_slave_js();
         Ok(())
@@ -27,3 +24,5 @@ impl Sync for WebSync {
         Ok(())
     }
 }
+
+impl Sync for WebSync {}

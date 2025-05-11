@@ -3,11 +3,20 @@ use super::{leds::LedsESPImpl, sync::EspSync};
 
 pub use super::ble::EspServer;
 use crate::drivers::ble::Server;
+use crate::drivers::esp::sync::MASTER_MAC;
 use anyhow::Result;
 use esp_idf_svc::eventloop::EspSystemEventLoop;
 use esp_idf_svc::hal::{gpio::Gpio35, prelude::Peripherals};
 use esp_idf_svc::nvs::EspDefaultNvsPartition;
-use esp_idf_svc::wifi::{ClientConfiguration, Configuration, WifiDriver};
+use esp_idf_svc::sys::esp_wifi_get_mac;
+use esp_idf_svc::wifi::{ClientConfiguration, Configuration, WifiDeviceId, WifiDriver};
+use lazy_static::lazy_static;
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref OWN_MAC: Mutex<[u8; 6]> = Mutex::new([0; 6]);
+}
+pub const WIFI_CHANNEL: u8 = 6;
 
 pub fn new() -> Result<(LedsESPImpl, MicESPImpl<Gpio35>, EspSync)> {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -22,9 +31,10 @@ pub fn new() -> Result<(LedsESPImpl, MicESPImpl<Gpio35>, EspSync)> {
     let leds = LedsESPImpl::new(peripherals.rmt.channel0, peripherals.pins.gpio23)?;
     let mic = MicESPImpl::new(peripherals.pins.gpio35, peripherals.adc1)?;
 
+    println!("Wi-Fi starting...");
+    // Setup the Wi-Fi driver
     let sys_loop = EspSystemEventLoop::take().unwrap();
-    let nvs: esp_idf_svc::nvs::EspNvsPartition<esp_idf_svc::nvs::NvsDefault> =
-        EspDefaultNvsPartition::take().unwrap();
+    let nvs = EspDefaultNvsPartition::take().unwrap();
 
     // Create a WifiDriver instance.
     let mut wifi_driver = WifiDriver::new(peripherals.modem, sys_loop, Some(nvs)).unwrap();
@@ -37,10 +47,62 @@ pub fn new() -> Result<(LedsESPImpl, MicESPImpl<Gpio35>, EspSync)> {
     // Wi-Fi start
     wifi_driver.start().unwrap();
 
-    let sync = EspSync::new()?;
+    set_channel(WIFI_CHANNEL);
+
+    println!("Wi-Fi started!");
+
+    // Get and print the device's own MAC address
+    let mac_address = get_mac(WifiDeviceId::Sta).unwrap();
+    println!(
+        "Device MAC address -> {:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
+        mac_address[0],
+        mac_address[1],
+        mac_address[2],
+        mac_address[3],
+        mac_address[4],
+        mac_address[5]
+    );
+
+    // Update MAC address in thread-safe manner
+    if let Ok(mut mac) = OWN_MAC.lock() {
+        *mac = mac_address;
+    }
+
+    let is_master = is_master();
+    let sync = if is_master {
+        EspSync::new_master()?
+    } else {
+        EspSync::new_slave()?
+    };
+
     Ok((leds, mic, sync))
+}
+pub fn get_mac(interface: WifiDeviceId) -> Result<[u8; 6]> {
+    let mut mac = [0u8; 6];
+
+    esp_idf_svc::sys::esp!(unsafe {
+        esp_wifi_get_mac(interface.into(), mac.as_mut_ptr() as *mut _)
+    })
+    .unwrap();
+
+    Ok(mac)
+}
+
+pub fn is_master() -> bool {
+    let compare = OWN_MAC
+        .lock()
+        .map(|mac| *mac == MASTER_MAC)
+        .unwrap_or(false);
+    println!("Comparing MAC addresses: {:?}", compare);
+    compare
 }
 
 pub fn create_ble_server() -> EspServer {
     EspServer::new()
+}
+pub fn set_channel(channel: u8) {
+    unsafe {
+        let second = esp_idf_svc::sys::wifi_second_chan_t_WIFI_SECOND_CHAN_NONE;
+        esp_idf_svc::sys::esp_wifi_set_channel(channel, second);
+    }
 }

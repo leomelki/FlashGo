@@ -1,3 +1,5 @@
+use std::future::Future;
+use std::thread::Builder;
 use std::time::Duration;
 
 use super::leds::Leds;
@@ -62,4 +64,31 @@ pub fn create_ble_server() -> BleServer {
     let ble_server = super::web::driver::create_ble_server();
 
     ble_server
+}
+
+pub fn is_master() -> bool {
+    #[cfg(feature = "esp")]
+    return super::esp::driver::is_master();
+    #[cfg(feature = "wasm")]
+    return false;
+}
+
+pub fn run_async(task: impl Future<Output = Result<()>> + Send + 'static, thread_name: &str) {
+    #[cfg(feature = "esp")]
+    {
+        Builder::new()
+            .name(thread_name.into())
+            // .stack_size(1000)
+            .spawn(move || {
+                esp_idf_svc::hal::task::block_on(task).unwrap();
+            })
+            .expect("failed to spawn thread");
+    }
+
+    #[cfg(not(feature = "esp"))]
+    {
+        wasm_bindgen_futures::spawn_local(async move {
+            task.await;
+        });
+    }
 }

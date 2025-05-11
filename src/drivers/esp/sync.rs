@@ -1,85 +1,142 @@
+use std::sync::{Arc, Mutex};
+use std::thread::Builder;
+
+use crate::drivers::{driver, esp::driver::WIFI_CHANNEL};
+
 use super::super::sync::Sync;
 use anyhow::Result;
-use core::sync::atomic::Ordering;
-use esp_idf_svc::espnow::{EspNow, PeerInfo, SendStatus};
-use std::{sync::atomic::AtomicBool, time::Duration};
+use esp_idf_svc::{
+    espnow::{EspNow, PeerInfo, BROADCAST},
+    sys::wifi_second_chan_t_WIFI_SECOND_CHAN_NONE,
+    wifi::{BlockingWifi, Configuration, EspWifi},
+};
 
 pub struct EspSync {
-    pub espnow: EspNow<'static>,
+    pub espnow: Arc<Mutex<EspNow<'static>>>,
 }
-
-static IS_SEARCHING_CHANNEL: AtomicBool = AtomicBool::new(true);
 
 impl EspSync {
-    pub fn new() -> Result<Self> {
+    pub fn new_master() -> Result<Self> {
         let espnow = EspNow::take()?;
+        let espnow = Arc::new(Mutex::new(espnow));
 
-        Ok(Self { espnow })
+        let esp_sync = Self {
+            espnow: espnow.clone(),
+        };
+
+        esp_sync.init_master()?;
+
+        Ok(esp_sync)
     }
-}
 
-impl Sync for EspSync {
+    pub fn new_slave() -> Result<Self> {
+        let espnow = EspNow::take()?;
+        let espnow = Arc::new(Mutex::new(espnow));
+
+        let esp_sync = Self {
+            espnow: espnow.clone(),
+        };
+
+        esp_sync.init_slave()?;
+
+        Ok(esp_sync)
+    }
+
     fn init_slave(&self) -> Result<()> {
-        // Notification to search for a master board on other channels
-        let (channel_search_sender, channel_search_notifier) = std::sync::mpsc::sync_channel(1);
+        println!("Initializing slave");
 
-        self.espnow.register_recv_cb(|mac_address, _data| {
-            // Convert slice to array
-            let mac_address_array = mac_address.try_into().unwrap();
-            // If peer does not exist, add it
-            if let Ok(false) = self.espnow.peer_exists(mac_address_array) {
-                // Add the peer
-                let peer = PeerInfo {
-                    peer_addr: mac_address_array,
-                    ..Default::default()
-                };
-                self.espnow.add_peer(peer).unwrap();
-            }
-        })?;
+        // Register callbacks and add peer
+        {
+            let mut espnow = self.espnow.lock().unwrap();
 
-        // Register the send callback, this is used to detect if the master is not reachable
-        let mut num_fail: usize = 0;
-        self.espnow
-            .register_send_cb(|_mac_addres, status| {
-                // if a send fails for more than 10 times, start searching for the master board on other channels
-                if let SendStatus::SUCCESS = status {
-                    num_fail = 0;
-                    IS_SEARCHING_CHANNEL.store(false, Ordering::Relaxed)
-                } else {
-                    num_fail = num_fail.checked_add(1).unwrap_or(0);
-                }
+            // Register the receive callback to handle incoming messages
+            espnow.register_recv_cb(|mac_address, data| {
+                println!("Received message from MAC: {:?}", mac_address);
+                println!("Data length: {} bytes", data.len());
+            })?;
 
-                if num_fail > 10 {
-                    IS_SEARCHING_CHANNEL.store(true, Ordering::Relaxed);
-                    let _ = channel_search_sender.try_send(());
-                }
-            })
-            .unwrap();
+            // Register the send callback
+            espnow.register_send_cb(|_mac_addres, status| {
+                println!("Send status: {:?}", status);
+            })?;
 
-        // Scan for an evailable channel
-        std::thread::spawn(move || {
-            let mut channel = 6;
-            loop {
-                while IS_SEARCHING_CHANNEL.load(Ordering::Relaxed) {
-                    set_channel(channel);
-                    // channels 1, 6 and 11 are the most common channels
-                    channel = (channel + 5) % 15;
-                    std::thread::sleep(Duration::from_secs(5));
-                }
-                // channel found, wait untill a notification is received
-                channel_search_notifier.recv().unwrap();
-            }
-        });
+            // Add the master peer
+            let peer = PeerInfo {
+                peer_addr: MASTER_MAC,
+                channel: 1,
+                ifidx: 1,
+                encrypt: false,
+                ..Default::default()
+            };
+            espnow.add_peer(peer).unwrap();
+            println!("Peer added: {:?}", MASTER_MAC);
+
+            espnow.send(MASTER_MAC, &[0x01]).unwrap();
+        }
+
         Ok(())
     }
+
     fn init_master(&self) -> Result<()> {
+        println!("Initializing master");
+
+        // Set up ESP-NOW with broadcast peer and callback
+        {
+            let mut espnow = self.espnow.lock().unwrap();
+
+            // Add broadcast peer
+            let broadcast = esp_idf_svc::sys::esp_now_peer_info {
+                channel: WIFI_CHANNEL,
+                ifidx: esp_idf_svc::sys::wifi_interface_t_WIFI_IF_AP,
+                encrypt: false,
+                peer_addr: BROADCAST,
+                ..Default::default()
+            };
+            espnow.add_peer(broadcast).unwrap();
+
+            espnow.register_recv_cb(|mac_address, _data| {
+                // Convert slice to array
+                let mac_address_array = mac_address.try_into().unwrap();
+                // If peer does not exist, add it
+                if let Ok(false) = espnow.peer_exists(mac_address_array) {
+                    // Add the peer
+                    let peer = PeerInfo {
+                        peer_addr: mac_address_array,
+                        ..Default::default()
+                    };
+                    espnow.add_peer(peer).unwrap();
+                }
+
+                println!("Peer added: {:?}", mac_address_array);
+            })?;
+        }
+
+        // Create a thread for broadcasting ping messages
+        let espnow_clone = self.espnow.clone();
+
+        Builder::new()
+            .name("sync_master".into())
+            .spawn(move || {
+                let task = async move {
+                    loop {
+                        log::info!("Broadcasting ping message");
+                        if let Ok(mut espnow) = espnow_clone.lock() {
+                            if let Err(e) = espnow.send(BROADCAST, &[0x01]) {
+                                log::warn!("Failed to send broadcast ping message: {:?}", e);
+                            }
+                        }
+                        driver::delay_ms(2000).await;
+                    }
+                };
+                esp_idf_svc::hal::task::block_on(task);
+            })
+            .expect("failed to spawn thread");
+
         Ok(())
     }
 }
 
-pub fn set_channel(channel: u8) {
-    unsafe {
-        let second = esp_idf_svc::sys::wifi_second_chan_t_WIFI_SECOND_CHAN_NONE;
-        esp_idf_svc::sys::esp_wifi_set_channel(channel, second);
-    }
-}
+// main board mac : c8:f0:9e:52:f3:e0
+pub const MASTER_MAC: [u8; 6] = [0xc8, 0xf0, 0x9e, 0x52, 0xf3, 0xe0];
+
+impl Sync for EspSync {}
