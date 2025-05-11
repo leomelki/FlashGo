@@ -68,12 +68,7 @@ pub fn new() -> Result<(LedsESPImpl, MicESPImpl<Gpio35>, EspSync)> {
         *mac = mac_address;
     }
 
-    let is_master = is_master();
-    let sync = if is_master {
-        EspSync::new_master()?
-    } else {
-        EspSync::new_slave()?
-    };
+    let sync = EspSync::new(wifi_driver).unwrap();
 
     Ok((leds, mic, sync))
 }

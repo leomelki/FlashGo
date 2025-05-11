@@ -1,4 +1,4 @@
-use super::super::sync::Sync;
+use super::super::sync::SyncTrait;
 use anyhow::Result;
 use wasm_bindgen::prelude::wasm_bindgen;
 
@@ -25,4 +25,12 @@ impl WebSync {
     }
 }
 
-impl Sync for WebSync {}
+impl SyncTrait for WebSync {
+    fn init(&self, _callback: impl Fn(&[u8], &[u8]) + Send + Sync + 'static) {
+        todo!()
+    }
+
+    fn send(&self, _data: &[u8]) {
+        todo!()
+    }
+}

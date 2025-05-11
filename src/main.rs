@@ -6,11 +6,13 @@ mod leds;
 mod macros;
 mod mic;
 mod protos;
-use crate::drivers::sync::Sync;
+mod sync;
+
 use animations::orchestrator::AnimationsOrchestrator;
 use anyhow::Result;
 use drivers::{ble::Server, driver};
 use leds::animations::thread::AnimationThread;
+use sync::DevicesSyncer;
 
 #[cfg(feature = "esp")]
 #[embassy_executor::main]
@@ -25,19 +27,22 @@ async fn init_esp() {
 }
 
 async fn init() -> Result<()> {
-    let (leds, mic, sync) = crate::drivers::driver::create_drivers()?;
+    let (leds, mic, sync) = crate::drivers::driver::create_drivers().await.unwrap();
     log::info!("Starting ESP32");
+
+    let devices_syncer = DevicesSyncer::new();
+    devices_syncer.init(sync).await;
 
     let mut ble_server = driver::create_ble_server();
 
-    let animation_thread = AnimationThread::init(leds);
+    let animation_thread = AnimationThread::init(leds).await;
 
     let animation_orchestrator =
         AnimationsOrchestrator::new(ble_server.register_service("animation")?, animation_thread)?;
 
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
 
-    animation_orchestrator.init()?;
+    animation_orchestrator.init().unwrap();
 
     ble_server.start_advertisement();
 

@@ -38,13 +38,14 @@ impl<S: Service> AnimationsOrchestrator<S> {
     }
 
     pub fn init(&self) -> Result<()> {
-        self.animation_thread.send(Message::Init(1))?;
+        self.animation_thread.send(Message::Init(1)).unwrap();
         self.set_animation(SetAnimation_::Animation::RainbowAnimation(
             RainbowAnimation {
                 speed: 1.0,
                 progressive: true,
             },
-        ))?;
+        ))
+        .unwrap();
         Ok(())
     }
 

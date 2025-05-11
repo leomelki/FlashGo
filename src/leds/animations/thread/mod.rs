@@ -7,7 +7,6 @@ use crate::drivers::{driver, leds::Leds};
 use anyhow::Result;
 use messages::Message;
 use std::sync::mpsc::{Receiver, Sender};
-use std::thread::Builder;
 
 #[derive(Clone)]
 pub struct AnimationThread {
@@ -18,44 +17,18 @@ impl AnimationThread {
     // Initialize the thread and start it
 
     pub fn send(&self, packet: Message) -> Result<()> {
-        self.tx.send(packet)?;
+        self.tx.send(packet).unwrap();
         Ok(())
     }
 
-    pub fn init(leds: impl Leds + 'static) -> Self {
+    pub async fn init(leds: impl Leds + 'static) -> Self {
         let (tx, rx) = std::sync::mpsc::channel();
 
-        #[cfg(feature = "esp")]
-        return Self::init_esp(tx, rx, leds);
-
-        #[cfg(feature = "wasm")]
-        return Self::init_wasm(tx, rx, leds);
-    }
-
-    #[cfg(feature = "esp")]
-    fn init_esp(tx: Sender<Message>, rx: Receiver<Message>, leds: impl Leds + 'static) -> Self {
-        // Run the task in a separate thread without blocking
-
-        Builder::new()
-            .name("animation_thread".into())
-            // .stack_size(1000)
-            .spawn(move || {
-                let animation_task = async {
-                    run_loop(rx, leds).await;
-                };
-
-                esp_idf_svc::hal::task::block_on(animation_task);
-            })
-            .expect("failed to spawn thread");
-        Self { tx }
-    }
-
-    #[cfg(feature = "wasm")]
-    fn init_wasm(tx: Sender<Message>, rx: Receiver<Message>, leds: impl Leds + 'static) -> Self {
-        let animation_task = async move {
+        driver::run_async(async move {
             run_loop(rx, leds).await;
-        };
-        wasm_bindgen_futures::spawn_local(animation_task);
+            Ok(())
+        })
+        .await;
 
         Self { tx }
     }

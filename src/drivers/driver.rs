@@ -1,10 +1,10 @@
 use std::future::Future;
-use std::thread::Builder;
+use std::pin::Pin;
 use std::time::Duration;
 
 use super::leds::Leds;
 use super::mic::Mic;
-use super::sync::Sync;
+use super::sync::SyncTrait;
 use anyhow::Result;
 
 #[cfg(feature = "wasm")]
@@ -13,7 +13,7 @@ pub type Instant = web_time::Instant;
 #[cfg(not(feature = "wasm"))]
 pub type Instant = std::time::Instant;
 
-pub fn create_drivers() -> Result<(impl Leds, impl Mic, impl Sync)> {
+pub async fn create_drivers() -> Result<(impl Leds, impl Mic, impl SyncTrait)> {
     #[cfg(feature = "esp")]
     let drivers = super::esp::driver::new()?;
     #[cfg(feature = "wasm")]
@@ -73,16 +73,15 @@ pub fn is_master() -> bool {
     return false;
 }
 
-pub fn run_async(task: impl Future<Output = Result<()>> + Send + 'static, thread_name: &str) {
+pub async fn run_async(task: impl Future<Output = Result<()>> + 'static) {
     #[cfg(feature = "esp")]
     {
-        Builder::new()
-            .name(thread_name.into())
-            // .stack_size(1000)
-            .spawn(move || {
-                esp_idf_svc::hal::task::block_on(task).unwrap();
-            })
-            .expect("failed to spawn thread");
+        #[embassy_executor::task(pool_size = 4)]
+        async fn run_task(task: Pin<Box<dyn Future<Output = Result<()>>>>) {
+            task.await.unwrap();
+        }
+        let spawner = embassy_executor::Spawner::for_current_executor().await;
+        spawner.spawn(run_task(Box::pin(task))).unwrap();
     }
 
     #[cfg(not(feature = "esp"))]
