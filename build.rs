@@ -6,6 +6,8 @@ fn main() {
 
     let mut gen = micropb_gen::Generator::new();
 
+    gen.use_container_std();
+
     let proto_files = find_proto_files();
 
     // Compile all found proto files

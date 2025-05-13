@@ -5,6 +5,5 @@ import "animations/protos/set_animation.proto";
 
 message Sync {
     animations.SetAnimation set_animation = 1;
-    uint64 timestamp = 2;
 }
 

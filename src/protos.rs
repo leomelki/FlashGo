@@ -195,7 +195,7 @@ pub mod sync_ {
         #[derive(Debug, PartialEq, Clone)]
         pub enum Packet {
             Sync(super::sync_::Sync),
-            Ack(super::ack_::Ack),
+            PingPong(super::ping_::PingPong),
         }
     }
     #[derive(Debug, PartialEq, Clone)]
@@ -242,12 +242,14 @@ pub mod sync_ {
                             if let ::core::option::Option::Some(variant) = &mut self
                                 .r#packet
                             {
-                                if let Packet_::Packet::Ack(variant) = &mut *variant {
+                                if let Packet_::Packet::PingPong(variant) = &mut *variant {
                                     break &mut *variant;
                                 }
                             }
                             self.r#packet = ::core::option::Option::Some(
-                                Packet_::Packet::Ack(::core::default::Default::default()),
+                                Packet_::Packet::PingPong(
+                                    ::core::default::Default::default(),
+                                ),
                             );
                         };
                         mut_ref.decode_len_delimited(decoder)?;
@@ -273,7 +275,7 @@ pub mod sync_ {
                         encoder.encode_varint32(10u32)?;
                         val_ref.encode_len_delimited(encoder)?;
                     }
-                    Packet_::Packet::Ack(val_ref) => {
+                    Packet_::Packet::PingPong(val_ref) => {
                         let val_ref = &*val_ref;
                         encoder.encode_varint32(18u32)?;
                         val_ref.encode_len_delimited(encoder)?;
@@ -295,7 +297,7 @@ pub mod sync_ {
                                     val_ref.compute_size(),
                                 );
                     }
-                    Packet_::Packet::Ack(val_ref) => {
+                    Packet_::Packet::PingPong(val_ref) => {
                         let val_ref = &*val_ref;
                         size
                             += 1usize
@@ -341,14 +343,12 @@ pub mod sync_ {
         #[derive(Debug, PartialEq, Clone)]
         pub struct Sync {
             pub r#set_animation: super::super::animations_::SetAnimation,
-            pub r#timestamp: u64,
             pub _has: Sync_::_Hazzer,
         }
         impl ::core::default::Default for Sync {
             fn default() -> Self {
                 Self {
                     r#set_animation: ::core::default::Default::default(),
-                    r#timestamp: ::core::default::Default::default(),
                     _has: ::core::default::Default::default(),
                 }
             }
@@ -402,16 +402,6 @@ pub mod sync_ {
                             };
                             self._has.set_set_animation();
                         }
-                        2u32 => {
-                            let mut_ref = &mut self.r#timestamp;
-                            {
-                                let val = decoder.decode_varint64()?;
-                                let val_ref = &val;
-                                if *val_ref != 0 {
-                                    *mut_ref = val as _;
-                                }
-                            };
-                        }
                         _ => {
                             decoder.skip_wire_value(tag.wire_type())?;
                         }
@@ -432,13 +422,6 @@ pub mod sync_ {
                         val_ref.encode_len_delimited(encoder)?;
                     }
                 }
-                {
-                    let val_ref = &self.r#timestamp;
-                    if *val_ref != 0 {
-                        encoder.encode_varint32(16u32)?;
-                        encoder.encode_varint64(*val_ref as _)?;
-                    }
-                }
                 Ok(())
             }
             fn compute_size(&self) -> usize {
@@ -453,32 +436,28 @@ pub mod sync_ {
                                 );
                     }
                 }
-                {
-                    let val_ref = &self.r#timestamp;
-                    if *val_ref != 0 {
-                        size += 1usize + ::micropb::size::sizeof_varint64(*val_ref as _);
-                    }
-                }
                 size
             }
         }
     }
-    pub mod ack_ {
+    pub mod ping_ {
         #[derive(Debug, PartialEq, Clone)]
-        pub struct Ack {
-            pub r#rcv_timestamp: u64,
-            pub r#device_id: u32,
+        pub struct PingPong {
+            pub r#slave_device_id: u32,
+            pub r#slave_timestamp: u64,
+            pub r#master_timestamp: u64,
         }
-        impl ::core::default::Default for Ack {
+        impl ::core::default::Default for PingPong {
             fn default() -> Self {
                 Self {
-                    r#rcv_timestamp: ::core::default::Default::default(),
-                    r#device_id: ::core::default::Default::default(),
+                    r#slave_device_id: ::core::default::Default::default(),
+                    r#slave_timestamp: ::core::default::Default::default(),
+                    r#master_timestamp: ::core::default::Default::default(),
                 }
             }
         }
-        impl Ack {}
-        impl ::micropb::MessageDecode for Ack {
+        impl PingPong {}
+        impl ::micropb::MessageDecode for PingPong {
             fn decode<IMPL_MICROPB_READ: ::micropb::PbRead>(
                 &mut self,
                 decoder: &mut ::micropb::PbDecoder<IMPL_MICROPB_READ>,
@@ -491,7 +470,17 @@ pub mod sync_ {
                     match tag.field_num() {
                         0 => return Err(::micropb::DecodeError::ZeroField),
                         1u32 => {
-                            let mut_ref = &mut self.r#rcv_timestamp;
+                            let mut_ref = &mut self.r#slave_device_id;
+                            {
+                                let val = decoder.decode_varint32()?;
+                                let val_ref = &val;
+                                if *val_ref != 0 {
+                                    *mut_ref = val as _;
+                                }
+                            };
+                        }
+                        2u32 => {
+                            let mut_ref = &mut self.r#slave_timestamp;
                             {
                                 let val = decoder.decode_varint64()?;
                                 let val_ref = &val;
@@ -500,10 +489,10 @@ pub mod sync_ {
                                 }
                             };
                         }
-                        2u32 => {
-                            let mut_ref = &mut self.r#device_id;
+                        3u32 => {
+                            let mut_ref = &mut self.r#master_timestamp;
                             {
-                                let val = decoder.decode_varint32()?;
+                                let val = decoder.decode_varint64()?;
                                 let val_ref = &val;
                                 if *val_ref != 0 {
                                     *mut_ref = val as _;
@@ -518,24 +507,31 @@ pub mod sync_ {
                 Ok(())
             }
         }
-        impl ::micropb::MessageEncode for Ack {
+        impl ::micropb::MessageEncode for PingPong {
             fn encode<IMPL_MICROPB_WRITE: ::micropb::PbWrite>(
                 &self,
                 encoder: &mut ::micropb::PbEncoder<IMPL_MICROPB_WRITE>,
             ) -> Result<(), IMPL_MICROPB_WRITE::Error> {
                 use ::micropb::{PbVec, PbMap, PbString, FieldEncode};
                 {
-                    let val_ref = &self.r#rcv_timestamp;
+                    let val_ref = &self.r#slave_device_id;
                     if *val_ref != 0 {
                         encoder.encode_varint32(8u32)?;
+                        encoder.encode_varint32(*val_ref as _)?;
+                    }
+                }
+                {
+                    let val_ref = &self.r#slave_timestamp;
+                    if *val_ref != 0 {
+                        encoder.encode_varint32(16u32)?;
                         encoder.encode_varint64(*val_ref as _)?;
                     }
                 }
                 {
-                    let val_ref = &self.r#device_id;
+                    let val_ref = &self.r#master_timestamp;
                     if *val_ref != 0 {
-                        encoder.encode_varint32(16u32)?;
-                        encoder.encode_varint32(*val_ref as _)?;
+                        encoder.encode_varint32(24u32)?;
+                        encoder.encode_varint64(*val_ref as _)?;
                     }
                 }
                 Ok(())
@@ -544,15 +540,21 @@ pub mod sync_ {
                 use ::micropb::{PbVec, PbMap, PbString, FieldEncode};
                 let mut size = 0;
                 {
-                    let val_ref = &self.r#rcv_timestamp;
+                    let val_ref = &self.r#slave_device_id;
+                    if *val_ref != 0 {
+                        size += 1usize + ::micropb::size::sizeof_varint32(*val_ref as _);
+                    }
+                }
+                {
+                    let val_ref = &self.r#slave_timestamp;
                     if *val_ref != 0 {
                         size += 1usize + ::micropb::size::sizeof_varint64(*val_ref as _);
                     }
                 }
                 {
-                    let val_ref = &self.r#device_id;
+                    let val_ref = &self.r#master_timestamp;
                     if *val_ref != 0 {
-                        size += 1usize + ::micropb::size::sizeof_varint32(*val_ref as _);
+                        size += 1usize + ::micropb::size::sizeof_varint64(*val_ref as _);
                     }
                 }
                 size

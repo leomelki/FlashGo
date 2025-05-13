@@ -3,10 +3,11 @@ syntax = "proto3";
 package sync;
 
 import "sync/protos/sync.proto";
-import "sync/protos/ack.proto";
+import "sync/protos/ping_pong.proto";
+
 message Packet {
     oneof packet {
         sync.Sync sync = 1;
-        ack.Ack ack = 2;
+        ping.PingPong ping_pong = 2;
     }
 }

@@ -73,6 +73,15 @@ pub fn is_master() -> bool {
     return false;
 }
 
+pub fn random_u32() -> u32 {
+    #[cfg(feature = "esp")]
+    let rng = rand::random::<u32>();
+    #[cfg(feature = "wasm")]
+    let rng = (wasm_bindgen_futures::js_sys::Math::random() * u32::MAX as f64) as u32;
+
+    rng
+}
+
 pub async fn run_async(task: impl Future<Output = Result<()>> + 'static) {
     #[cfg(feature = "esp")]
     {

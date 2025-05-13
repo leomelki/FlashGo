@@ -40,6 +40,16 @@ impl EspSync {
         {
             let espnow = self.espnow.lock().unwrap();
 
+            // Add broadcast peer
+            let broadcast = esp_idf_svc::sys::esp_now_peer_info {
+                channel: WIFI_CHANNEL,
+                ifidx: esp_idf_svc::sys::wifi_interface_t_WIFI_IF_STA,
+                encrypt: false,
+                peer_addr: BROADCAST,
+                ..Default::default()
+            };
+            espnow.add_peer(broadcast).unwrap();
+
             // Register the receive callback to handle incoming messages
             espnow
                 .register_recv_cb(move |mac_address, data| {
@@ -161,12 +171,13 @@ impl SyncTrait for EspSync {
             self.init_slave(recieve_callback).unwrap();
         }
     }
-    fn send(&self, data: &[u8]) {
+    fn broadcast(&self, data: &[u8]) {
         let espnow = self.espnow.lock().unwrap();
-        if driver::is_master() {
-            espnow.send(BROADCAST, data).unwrap();
-        } else {
-            espnow.send(MASTER_MAC, data).unwrap();
-        }
+        espnow.send(BROADCAST, data).unwrap();
+    }
+
+    fn send_private(&self, mac_address: [u8; 6], data: &[u8]) {
+        let espnow = self.espnow.lock().unwrap();
+        espnow.send(mac_address, data).unwrap();
     }
 }

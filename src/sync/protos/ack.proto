@@ -1,7 +1,0 @@
-syntax = "proto3";
-package sync.ack;
-
-message Ack {
-    uint64 rcv_timestamp = 1;
-    uint32 device_id = 2;
-}

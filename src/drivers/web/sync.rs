@@ -8,7 +8,8 @@ pub struct WebSync {}
 #[wasm_bindgen]
 extern "C" {
     fn init_espnow();
-    fn send_espnow(data: &[u8]);
+    fn broadcast_espnow(data: &[u8]);
+    fn send_private_espnow(mac_address: &[u8], data: &[u8]);
 }
 
 #[wasm_bindgen]
@@ -38,7 +39,11 @@ impl SyncTrait for WebSync {
         init_espnow();
     }
 
-    fn send(&self, data: &[u8]) {
-        send_espnow(data);
+    fn broadcast(&self, data: &[u8]) {
+        broadcast_espnow(data);
+    }
+
+    fn send_private(&self, mac_address: [u8; 6], data: &[u8]) {
+        send_private_espnow(&mac_address, data);
     }
 }

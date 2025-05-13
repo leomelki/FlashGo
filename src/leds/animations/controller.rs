@@ -40,7 +40,7 @@ impl<L: Leds> AnimationController<L> {
                 self.leds_controller.update(&mut self.leds).unwrap();
             }
             Message::SetAnimation(set_animation) => {
-                log::info!("AnimationController set animation");
+                // log::info!("AnimationController set animation");
                 self.set_animation(set_animation);
             }
             Message::Stop => {

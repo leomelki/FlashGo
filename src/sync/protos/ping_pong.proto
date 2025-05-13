@@ -1,0 +1,8 @@
+syntax = "proto3";
+package sync.ping;
+
+message PingPong {
+    uint32 slave_device_id = 1;
+    uint64 slave_timestamp = 2;
+    uint64 master_timestamp = 3;
+}
