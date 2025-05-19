@@ -8,6 +8,7 @@ mod mic;
 mod protos;
 mod sync;
 mod time;
+mod utils;
 
 use animations::orchestrator::AnimationsOrchestrator;
 use anyhow::Result;

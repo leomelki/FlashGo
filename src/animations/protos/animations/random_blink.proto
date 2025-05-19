@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package animations.list.random_blink;
+
+import "utils/utils.proto";
+
+message RandomBlinkAnimation {
+    int32 speed = 1;
+    int32 on_percentage = 2;
+    utils.Color color = 3;
+}

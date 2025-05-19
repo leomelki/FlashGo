@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package animations.list.strobe;
+
+import "utils/utils.proto";
+
+message StrobeAnimation {
+    int32 on_ms = 1;
+    int32 off_ms = 2;
+    utils.Color color = 3;
+}

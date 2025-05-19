@@ -37,7 +37,7 @@ impl<S: Service, T: SyncTrait + 'static> AnimationsOrchestrator<S, T> {
                 let mut decoder = PbDecoder::new(value);
                 set_animation.decode(&mut decoder, value.len()).unwrap();
 
-                animation_thread_clone.send(Message::SetAnimation(set_animation))?;
+                //todo set anim here
                 Ok(())
             });
         }
@@ -70,9 +70,7 @@ impl<S: Service, T: SyncTrait + 'static> AnimationsOrchestrator<S, T> {
                 // );
 
                 if animation_thread_clone
-                    .send(Message::SetAnimation(SetAnimation {
-                        animation: Some(state.animation.clone()),
-                    }))
+                    .send(Message::SetState(state))
                     .is_err()
                 {
                     log::error!("AnimationOrchestrator failed to send animation");
@@ -97,8 +95,10 @@ impl<S: Service, T: SyncTrait + 'static> AnimationsOrchestrator<S, T> {
         let data = encoder.into_writer();
         self.animation_characteristic.send_value(&data);
 
-        self.animation_thread
-            .send(Message::SetAnimation(set_animation))?;
+        // self.animation_thread
+        //     .send(Message::SetAnimation(set_animation))?;
+
+        //todo
         Ok(())
     }
 

@@ -9,6 +9,7 @@ use crate::protos;
 use crate::protos::animations_::list_::rainbow_::RainbowAnimation;
 use crate::protos::animations_::SetAnimation;
 use crate::protos::animations_::SetAnimation_::Animation;
+use crate::protos::sync_::sync_::Sync_;
 use crate::protos::sync_::Packet;
 use crate::time::now_micros;
 use crate::time::now_millis;
@@ -38,10 +39,11 @@ pub struct DevicesSyncer<T: SyncTrait + 'static> {
     sync: T,
     device_id: u32,
     master: bool,
-    state_update_callback: Mutex<Option<Box<dyn Fn(&DevicesSyncerState) + Send + Sync + 'static>>>,
+    state_update_callback: Mutex<Option<Box<dyn Fn(DevicesSyncerState) + Send + Sync + 'static>>>,
     best_delay: Mutex<DeviceDelay>,
 }
 
+#[derive(Clone)]
 pub struct DevicesSyncerState {
     pub time_offset_ms: i128,
     pub animation: Animation,
@@ -81,7 +83,7 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
         }
     }
 
-    fn call_state_update_callback(&self, state: &DevicesSyncerState) {
+    fn call_state_update_callback(&self, state: DevicesSyncerState) {
         if let Some(callback) = self.state_update_callback.lock().unwrap().as_ref() {
             callback(state);
         }
@@ -90,12 +92,12 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
     pub fn update_state(&self, state: &DevicesSyncerState) {
         let mut state_mut = self.state.lock().unwrap();
         state_mut.animation = state.animation.clone();
-        self.call_state_update_callback(state);
+        self.call_state_update_callback(state_mut.clone());
     }
 
     pub fn set_state_update_callback(
         &self,
-        callback: impl Fn(&DevicesSyncerState) + Send + Sync + 'static,
+        callback: impl Fn(DevicesSyncerState) + Send + Sync + 'static,
     ) {
         *self.state_update_callback.lock().unwrap() = Some(Box::new(callback));
     }
@@ -152,7 +154,7 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
                         set_animation: SetAnimation {
                             animation: Some(self.state.lock().unwrap().animation.clone()),
                         },
-                        ..Default::default()
+                        _has: Sync_::_Hazzer::default().init_set_animation(),
                     });
 
                 self.broadcast_packet(sync_packet);
@@ -172,7 +174,7 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
                         master_timestamp: 0,
                     },
                 ));
-                driver::delay_ms(400).await;
+                driver::delay_ms(350).await;
             }
         })
         .await;
@@ -230,7 +232,7 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
         }
 
         if let Some(callback) = self.state_update_callback.lock().unwrap().as_ref() {
-            callback(&state_mut);
+            callback(state_mut.clone());
         }
     }
 
@@ -258,7 +260,7 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
 
             if now_ms > best_delay.last_update + 15_000 {
                 state_mut.time_offset_ms = best_delay.time_offset_ms;
-                self.call_state_update_callback(&state_mut);
+                self.call_state_update_callback(state_mut.clone());
 
                 log::info!(
                     "Time offset updated to {:?} ms (delay : {:?} ms)",

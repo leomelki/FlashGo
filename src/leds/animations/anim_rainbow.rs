@@ -1,20 +1,15 @@
 use crate::{
     drivers::leds::Color,
     leds::{animations::Animation, controller::LedsController},
+    protos::animations_::list_::rainbow_,
 };
 
 use super::state::AnimationState;
 
-pub struct RainbowAnimation {
-    pub speed: f32,
-    pub progressive: bool,
-}
-
 //config
 // speed: multiplier for the speed of the animation
 // progressive: if true, the animation will be from left to right, otherwise it will be the whole square
-impl Animation for RainbowAnimation {
-    type Config = crate::protos::animations_::list_::rainbow_::RainbowAnimation;
+impl Animation for rainbow_::RainbowAnimation {
     fn tick(&self, state: &AnimationState, leds: &mut LedsController) {
         if self.progressive {
             for i in 0..leds.width {
@@ -34,13 +29,6 @@ impl Animation for RainbowAnimation {
                 1.0,
             );
             leds.set_all_colors(color);
-        }
-    }
-
-    fn new(config: &Self::Config) -> Self {
-        Self {
-            speed: config.speed,
-            progressive: config.progressive,
         }
     }
 }
