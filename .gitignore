@@ -2,3 +2,4 @@
 /target
 /Cargo.lock
 *_pb.rs
+/src/protos.rs
