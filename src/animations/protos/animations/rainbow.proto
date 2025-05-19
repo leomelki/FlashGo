@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package animations.list;
+package animations.list.rainbow;
 message RainbowAnimation {
     float speed = 1;
     bool progressive = 2;

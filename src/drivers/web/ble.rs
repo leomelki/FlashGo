@@ -1,4 +1,6 @@
-use crate::drivers::ble::{get_uuid_from_name, Characteristic, Server, Service, UUIDAble};
+use crate::drivers::ble::{
+    get_uuid, get_uuid_from_name, Characteristic, Server, Service, UUIDAble,
+};
 use anyhow::Result;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -7,13 +9,8 @@ use wasm_bindgen::prelude::wasm_bindgen;
 
 #[wasm_bindgen]
 extern "C" {
-    fn register_ble_service_js(uuid: &str) -> String;
-    fn register_ble_characteristic_js(
-        service_id: &str,
-        uuid: &str,
-        is_read: bool,
-        is_write: bool,
-    ) -> String;
+    fn register_ble_service_js(uuid: &str);
+    fn register_ble_characteristic_js(uuid: &str, is_read: bool, is_write: bool);
     fn start_ble_advertisement_js();
     fn send_characteristic_value_js(char_id: &str, value: &[u8]);
 }
@@ -38,7 +35,6 @@ pub fn on_characteristic_write(char_id: &str, data: &[u8]) -> bool {
 
 pub struct BLECharacteristicSimImpl {
     name: String,
-    characteristic_id: String,
     is_read: bool,
     is_write: bool,
 }
@@ -54,20 +50,19 @@ impl Characteristic for BLECharacteristicSimImpl {
         // Register callback in the global registry
         CHARACTERISTICS.with(|chars| {
             chars.borrow_mut().insert(
-                self.characteristic_id.clone(),
+                get_uuid(self).to_string(),
                 Rc::new(RefCell::new(Box::new(callback))),
             );
         });
     }
 
     fn send_value<'a>(&self, value: &'a [u8]) {
-        send_characteristic_value_js(&self.characteristic_id, value);
+        send_characteristic_value_js(&get_uuid(self).to_string(), value);
     }
 }
 
 pub struct BLEServiceSimImpl {
     name: String,
-    service_id: String,
     characteristics: RefCell<HashMap<String, BLECharacteristicSimImpl>>,
 }
 
@@ -87,12 +82,10 @@ impl Service for BLEServiceSimImpl {
         is_write: bool,
     ) -> Result<Self::Characteristic> {
         let uuid = get_uuid_from_name(name).to_string();
-        let characteristic_id =
-            register_ble_characteristic_js(&self.service_id, &uuid, is_read, is_write);
+        register_ble_characteristic_js(&uuid, is_read, is_write);
 
         let characteristic = BLECharacteristicSimImpl {
             name: name.to_string(),
-            characteristic_id,
             is_read,
             is_write,
         };
@@ -108,7 +101,6 @@ impl Clone for BLECharacteristicSimImpl {
     fn clone(&self) -> Self {
         BLECharacteristicSimImpl {
             name: self.name.clone(),
-            characteristic_id: self.characteristic_id.clone(),
             is_read: self.is_read,
             is_write: self.is_write,
         }
@@ -130,11 +122,10 @@ impl Server for BLEServerSimImpl {
 
     fn register_service(&mut self, name: &str) -> Result<Self::Service> {
         let uuid = get_uuid_from_name(name).to_string();
-        let service_id = register_ble_service_js(&uuid);
+        register_ble_service_js(&uuid);
 
         let service = BLEServiceSimImpl {
             name: name.to_string(),
-            service_id,
             characteristics: RefCell::new(HashMap::new()),
         };
 
@@ -151,7 +142,6 @@ impl Clone for BLEServiceSimImpl {
     fn clone(&self) -> Self {
         BLEServiceSimImpl {
             name: self.name.clone(),
-            service_id: self.service_id.clone(),
             characteristics: RefCell::new(self.characteristics.borrow().clone()),
         }
     }

@@ -23,25 +23,25 @@ opt-level = "z"
 
 [features]
 wasm = ["dep:wasm-bindgen", "dep:gloo-timers", "dep:wasm-bindgen-futures", "dep:web-time", "uuid/js"]
-esp = ["embuild/espidf", "dep:esp-idf-svc", "embassy", "dep:embuild", "dep:esp32-nimble"]
+esp = ["embuild/espidf", "dep:esp-idf-svc", "embassy", "dep:embuild", "dep:esp32-nimble", "dep:rand"]
 embassy = [
     "esp-idf-svc/embassy-sync",
     "esp-idf-svc/embassy-time-driver",
     "dep:embassy-futures",
     "dep:embassy-time",
     "dep:embassy-executor",
-    "dep:embedded-hal-async"
+    "dep:embedded-hal-async",
+    "dep:embassy-sync"
 ]
 
 [dependencies]
 log = { version = "0.4", default-features = false }
 microfft = { version = "0.6.0", default-features = false, features = ["size-1024"] }
 anyhow = "1.0.97"
-embassy-sync = "0.6"
 futures = "0.3.31"
 static_cell = "2.1.0"
 lazy_static = "1.4.0"
-micropb = {version = "0.1.0", features = ["alloc"]}
+micropb = {version = "0.1.0", features = ["std"]}
 once_cell = "1.21.3"
 uuid = { version = "1.10.0", features = ["v5", "fast-rng"] }
 
@@ -50,6 +50,7 @@ wasm-bindgen = { version = "0.2.100", optional = true }
 wasm-bindgen-futures = { version = "0.4.50", optional = true }
 gloo-timers = { version = "0.3.0", features = ["futures"], optional = true }
 
+embassy-sync = { version = "0.6", optional = true}
 embedded-hal-async = { version = "1.0.0", optional = true }
 embassy-futures = { version = "0.1.1", optional = true }
 embassy-time = { version = "0.3", features = ["generic-queue"], optional = true }
@@ -65,6 +66,7 @@ esp-idf-svc = { version = "0.49.1", default-features = false, features = [
     "std",
     "alloc"
 ], optional = true }
+rand = { version = "0.9.1", optional = true }
 
 [build-dependencies]
 embuild = { version = "0.32.0", optional = true }
