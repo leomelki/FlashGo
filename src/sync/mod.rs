@@ -49,6 +49,15 @@ pub struct DevicesSyncerState {
     pub animation: Animation,
 }
 
+impl Default for DevicesSyncerState {
+    fn default() -> Self {
+        Self {
+            time_offset_ms: 0,
+            animation: Animation::RainbowAnimation(RainbowAnimation::default()),
+        }
+    }
+}
+
 impl DevicesSyncerState {
     pub fn now_micros(&self) -> u64 {
         (now_micros() as i128 + self.time_offset_ms * 1000) as u64
