@@ -1,6 +1,8 @@
 use crate::drivers::driver;
 use crate::drivers::leds::Color as LedsColor;
 use crate::protos::utils_::{Color, ColorType, Color_, StaticColor};
+use rand::Rng;
+use rand::{rngs::StdRng, SeedableRng};
 
 impl Color {
     pub fn to_color(&self) -> LedsColor {
@@ -30,18 +32,21 @@ impl Color {
                 // For Random, generate pseudo-random color based on time
                 // Change color every random_change_delay_ms
                 let seed = time_ms / random_change_delay_ms;
-                let r = driver::random_u32_seeded(seed) as u8;
-                let g = driver::random_u32_seeded(seed + 1) as u8;
-                let b = driver::random_u32_seeded(seed + 2) as u8;
+
+                let mut rng = StdRng::seed_from_u64(seed);
+                let r = rng.random_range(0..=255) as u8;
+                let g = rng.random_range(0..=255) as u8;
+                let b = rng.random_range(0..=255) as u8;
                 LedsColor::new(r, g, b)
             }
             ColorType::SyncRandom => {
                 // SyncRandom is similar to Random but uses a global time source
                 // This ensures all devices using this color change at the same time
                 let seed = time_ms / random_change_delay_ms;
-                let r = driver::random_u32_seeded(seed) as u8;
-                let g = driver::random_u32_seeded(seed + 1) as u8;
-                let b = driver::random_u32_seeded(seed + 2) as u8;
+                let nbr = driver::random_u32_seeded(seed);
+                let r = ((nbr >> 16) & 0xFF) as u8;
+                let g = ((nbr >> 8) & 0xFF) as u8;
+                let b = (nbr & 0xFF) as u8;
                 LedsColor::new(r, g, b)
             }
             _ => LedsColor::black(), // Default case for unknown color types
