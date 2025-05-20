@@ -1,15 +1,12 @@
 use crate::drivers::driver;
 use crate::drivers::leds::Color as LedsColor;
 use crate::protos::utils_::{Color, ColorType, Color_, StaticColor};
+use crate::sync::DevicesSyncerState;
 use rand::Rng;
 use rand::{rngs::StdRng, SeedableRng};
 
 impl Color {
-    pub fn to_color(&self) -> LedsColor {
-        self.to_color_with_time(0, 1000)
-    }
-
-    pub fn to_color_with_time(&self, time_ms: u64, random_change_delay_ms: u64) -> LedsColor {
+    pub fn to_color(&self, state: &DevicesSyncerState) -> LedsColor {
         match self.r#type {
             ColorType::Static => {
                 if let Some(static_color) = self.color() {
@@ -25,13 +22,13 @@ impl Color {
             ColorType::Rainbow => {
                 // For Rainbow, calculate a color based on the current time
                 // Cycle through the hue spectrum (0-360 degrees)
-                let hue = (time_ms % 3600) as f32 / 10.0; // Complete cycle every 3.6 seconds
+                let hue = (state.now_millis() % 3600) as f32 / 10.0; // Complete cycle every 3.6 seconds
                 LedsColor::from_hsv(hue, 1.0, 1.0)
             }
             ColorType::Random => {
                 // For Random, generate pseudo-random color based on time
                 // Change color every random_change_delay_ms
-                let seed = time_ms / random_change_delay_ms;
+                let seed = state.now_millis() / state.bpm_to_ms();
 
                 let mut rng = StdRng::seed_from_u64(seed);
                 let r = rng.random_range(0..=255) as u8;
@@ -42,7 +39,7 @@ impl Color {
             ColorType::SyncRandom => {
                 // SyncRandom is similar to Random but uses a global time source
                 // This ensures all devices using this color change at the same time
-                let seed = time_ms / random_change_delay_ms;
+                let seed = state.now_millis() / state.bpm_to_ms();
                 let nbr = driver::random_u32_seeded(seed);
                 let r = ((nbr >> 16) & 0xFF) as u8;
                 let g = ((nbr >> 8) & 0xFF) as u8;

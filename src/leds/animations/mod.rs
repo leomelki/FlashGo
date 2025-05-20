@@ -4,11 +4,10 @@ pub mod controller;
 pub mod state;
 pub mod thread;
 
-use state::AnimationState;
+use crate::sync::DevicesSyncerState;
 
 use super::controller::LedsController;
 
 pub trait Animation {
-    fn tick(&self, state: &AnimationState, leds: &mut LedsController);
+    fn tick(&self, state: &DevicesSyncerState, leds: &mut LedsController);
 }
-

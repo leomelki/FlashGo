@@ -46,6 +46,7 @@ pub struct DevicesSyncer<T: SyncTrait + 'static> {
 #[derive(Clone)]
 pub struct DevicesSyncerState {
     pub time_offset_ms: i128,
+    pub bpm: u16,
     pub animation: Animation,
 }
 
@@ -53,7 +54,11 @@ impl Default for DevicesSyncerState {
     fn default() -> Self {
         Self {
             time_offset_ms: 0,
-            animation: Animation::RainbowAnimation(RainbowAnimation::default()),
+            bpm: 125,
+            animation: Animation::RainbowAnimation(RainbowAnimation {
+                speed: 1.0,
+                progressive: true,
+            }),
         }
     }
 }
@@ -66,6 +71,9 @@ impl DevicesSyncerState {
     pub fn now_millis(&self) -> u64 {
         (now_millis() as i128 + self.time_offset_ms) as u64
     }
+    pub fn bpm_to_ms(&self) -> u64 {
+        60_000 / self.bpm as u64
+    }
 }
 
 impl<T: SyncTrait + 'static> DevicesSyncer<T> {
@@ -73,13 +81,7 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
         let device_id = driver::random_u32();
 
         Self {
-            state: Arc::new(Mutex::new(DevicesSyncerState {
-                time_offset_ms: 0,
-                animation: Animation::RainbowAnimation(RainbowAnimation {
-                    speed: 100.0,
-                    progressive: true,
-                }),
-            })),
+            state: Arc::new(Mutex::new(DevicesSyncerState::default())),
             sync,
             device_id,
             master: driver::is_master(),
