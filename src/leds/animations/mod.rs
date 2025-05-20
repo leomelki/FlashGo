@@ -1,4 +1,5 @@
 mod anim_rainbow;
+mod anim_random_blink;
 mod anim_strobe;
 pub mod controller;
 pub mod state;

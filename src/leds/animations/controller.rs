@@ -44,7 +44,7 @@ impl<L: Leds> AnimationController<L> {
                 strobe.tick(&self.state, &mut self.leds_controller)
             }
             SetAnimation_::Animation::RandomBlinkAnimation(random_blink) => {
-                // random_blink.tick(state, &mut self.leds_controller)
+                random_blink.tick(&self.state, &mut self.leds_controller)
             }
             SetAnimation_::Animation::WaveAnimation(wave) => {
                 // wave.tick(state, &mut self.leds_controller)

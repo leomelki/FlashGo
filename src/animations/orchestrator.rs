@@ -3,7 +3,8 @@ use crate::drivers::driver;
 use crate::drivers::sync::SyncTrait;
 use crate::protos::animations_::list_::rainbow_::RainbowAnimation;
 use crate::protos::animations_::{SetAnimation, SetAnimation_};
-use crate::sync::DevicesSyncerState;
+use crate::protos::bpm_::SetBPM;
+use crate::sync::PartialDeviceState;
 use crate::{
     drivers::ble,
     leds::animations::thread::{messages::Message, AnimationThread},
@@ -11,7 +12,6 @@ use crate::{
 };
 use anyhow::Result;
 use ble::Characteristic;
-use futures::channel::mpsc;
 use micropb::{MessageDecode, MessageEncode, PbDecoder, PbEncoder};
 use std::vec::Vec;
 
@@ -22,6 +22,7 @@ where
     T: SyncTrait + Send + Sync + 'static,
 {
     animation_characteristic: <S as Service>::Characteristic,
+    bpm_characteristic: <S as Service>::Characteristic,
     animation_thread: AnimationThread,
     devices_syncer: DevicesSyncer<T>,
     master: bool,
@@ -41,8 +42,11 @@ where
         let animation_characteristic =
             ble_service.register_characteristic("animation", true, true)?;
 
+        let bpm_characteristic = ble_service.register_characteristic("bpm", true, true)?;
+
         let orchestrator = Self {
             animation_characteristic,
+            bpm_characteristic,
             animation_thread,
             devices_syncer,
             master: driver::is_master(),
@@ -87,16 +91,30 @@ where
                     animation
                 );
 
-                self.devices_syncer.update_state(&DevicesSyncerState {
-                    animation,
-                    ..Default::default()
-                });
+                self.devices_syncer
+                    .partial_state_update(&PartialDeviceState {
+                        animation: Some(animation),
+                        ..Default::default()
+                    });
             } else {
                 log::error!("AnimationOrchestrator received invalid animation (no animation)");
             }
             Ok(())
         });
 
+        self.bpm_characteristic.set_callback(move |value| {
+            let mut set_bpm = SetBPM::default();
+            let mut decoder = PbDecoder::new(value);
+            set_bpm.decode(&mut decoder, value.len()).unwrap();
+
+            log::info!("AnimationOrchestrator received BLE bpm: {:?}", set_bpm);
+            self.devices_syncer
+                .partial_state_update(&PartialDeviceState {
+                    bpm: Some(set_bpm.bpm as u16),
+                    ..Default::default()
+                });
+            Ok(())
+        });
         if self.master {
             self.init_master_orchestrator().await;
         }

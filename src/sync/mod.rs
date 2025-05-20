@@ -15,7 +15,6 @@ use crate::time::now_micros;
 use crate::time::now_millis;
 use futures::channel::mpsc::{self, Receiver};
 use futures::StreamExt;
-use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::Mutex;
 
@@ -48,6 +47,13 @@ pub struct DevicesSyncerState {
     pub time_offset_ms: i128,
     pub bpm: u16,
     pub animation: Animation,
+}
+
+#[derive(Clone, Default)]
+pub struct PartialDeviceState {
+    pub time_offset_ms: Option<i128>,
+    pub bpm: Option<u16>,
+    pub animation: Option<Animation>,
 }
 
 impl Default for DevicesSyncerState {
@@ -100,9 +106,28 @@ impl<T: SyncTrait + 'static> DevicesSyncer<T> {
         }
     }
 
+    pub fn partial_state_update(&self, update: &PartialDeviceState) {
+        let mut state_mut = self.state.lock().unwrap();
+
+        if let Some(time_offset) = update.time_offset_ms {
+            state_mut.time_offset_ms = time_offset;
+        }
+
+        if let Some(bpm) = update.bpm {
+            state_mut.bpm = bpm;
+        }
+
+        if let Some(animation) = &update.animation {
+            state_mut.animation = animation.clone();
+        }
+
+        self.call_state_update_callback(state_mut.clone());
+    }
+
     pub fn update_state(&self, state: &DevicesSyncerState) {
         let mut state_mut = self.state.lock().unwrap();
         state_mut.animation = state.animation.clone();
+        state_mut.bpm = state.bpm;
         self.call_state_update_callback(state_mut.clone());
     }
 
