@@ -11,6 +11,8 @@ use crate::{
 };
 use anyhow::Result;
 use ble::Characteristic;
+use futures::channel::mpsc::{self, Receiver};
+use futures::StreamExt;
 use micropb::{MessageDecode, PbDecoder};
 
 pub struct AnimationsOrchestrator<S, T>
@@ -67,7 +69,7 @@ where
             }
         });
 
-        let (sender, receiver) = futures::channel::mpsc::channel::<PartialDeviceState>(16);
+        let (sender, mut receiver) = mpsc::channel::<PartialDeviceState>(16);
 
         {
             let sender_clone = sender.clone();
@@ -118,6 +120,14 @@ where
                 Ok(())
             });
         }
+
+        driver::run_async(async move {
+            while let Some(partial_update) = receiver.next().await {
+                self.devices_syncer.partial_state_update(&partial_update);
+            }
+            Ok(())
+        })
+        .await;
 
         if self.master {
             self.init_master_orchestrator().await;
