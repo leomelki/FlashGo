@@ -47,7 +47,7 @@ impl<L: Leds> AnimationController<L> {
                 random_blink.tick(&self.state, &mut self.leds_controller)
             }
             SetAnimation_::Animation::WaveAnimation(wave) => {
-                // wave.tick(state, &mut self.leds_controller)
+                wave.tick(&self.state, &mut self.leds_controller)
             }
         }
     }
