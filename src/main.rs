@@ -50,10 +50,10 @@ async fn init() -> Result<()> {
         DevicesSyncer::new(sync),
     )?));
 
-    ble_server
-        .register_service("identity-flashgo-v1")?
-        .register_characteristic("version", true, false)?
-        .send_value(&[1]);
+    // ble_server
+    //     .register_service("identity-flashgo-v1")?
+    //     .register_characteristic("version", true, false)?
+    //     .send_value(&[1]);
 
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
 

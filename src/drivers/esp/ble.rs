@@ -227,9 +227,10 @@ fn get_uuid(element: &impl UUIDAble) -> BleUuid {
 }
 
 fn get_uuid_from_name(name: &str) -> BleUuid {
-    let mut hash: u32 = 5381;
-    for byte in name.bytes() {
-        hash = ((hash << 5).wrapping_add(hash)).wrapping_add(byte as u32);
-    }
-    BleUuid::from_uuid32(hash)
+    get_uuid_128_from_name(name)
+    // let mut hash: u32 = 5381;
+    // for byte in name.bytes() {
+    //     hash = ((hash << 5).wrapping_add(hash)).wrapping_add(byte as u32);
+    // }
+    // BleUuid::from_uuid32(hash)
 }
