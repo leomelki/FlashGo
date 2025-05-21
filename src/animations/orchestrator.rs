@@ -59,6 +59,9 @@ where
         self.devices_syncer.init().await;
         self.animation_thread.send(Message::Init(1)).unwrap();
 
+        self.animation_characteristic.send_value(&[0]);
+        self.bpm_characteristic.send_value(&[0]);
+
         let animation_thread_clone = self.animation_thread.clone();
         self.devices_syncer.set_state_update_callback(move |state| {
             if animation_thread_clone

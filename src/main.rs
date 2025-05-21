@@ -13,7 +13,7 @@ mod utils;
 use animations::orchestrator::AnimationsOrchestrator;
 use anyhow::Result;
 use drivers::{
-    ble::{Server, Service},
+    ble::{Characteristic, Server, Service},
     driver,
 };
 use leds::animations::thread::AnimationThread;
@@ -52,7 +52,8 @@ async fn init() -> Result<()> {
 
     ble_server
         .register_service("identity-flashgo-v1")?
-        .register_characteristic("version", true, false)?;
+        .register_characteristic("version", true, false)?
+        .send_value(&[1]);
 
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
 

@@ -99,12 +99,20 @@ impl ble::Service for EspService {
         let ble_char = self
             .ble_service
             .lock()
-            .create_characteristic(get_uuid_128_from_name(name), properties);
+            .create_characteristic(get_uuid_from_name(name), properties);
 
+        ble_char.lock().create_2904_descriptor();
+
+        ble_char.lock().on_subscribe(|a, _args, ccc| {
+            log::info!(
+                "Client subscribed to characteristic '{}'",
+                a.uuid(), // Use the name from the outer scope
+            );
+        });
         log::info!(
             "BLE characteristic created: {} ({})",
             name,
-            get_uuid_128_from_name(name)
+            get_uuid_from_name(name)
         );
 
         Ok(EspCharacteristic::new(ble_char, name, is_read, is_write))
@@ -129,15 +137,15 @@ impl ble::Server for EspServer {
         server.on_connect(|server, desc| {
             log::info!("Client connected: {:?}", desc);
 
-            // server
-            //     .update_conn_params(desc.conn_handle(), 24, 48, 0, 60)
-            //     .unwrap();
+            server
+                .update_conn_params(desc.conn_handle(), 24, 48, 0, 60)
+                .unwrap();
 
-            // if server.connected_count() < (esp_idf_svc::sys::CONFIG_BT_NIMBLE_MAX_CONNECTIONS as _)
-            // {
-            //     ::log::info!("Multi-connect support: start advertising");
-            //     advertiser.lock().start().unwrap();
-            // }
+            if server.connected_count() < (esp_idf_svc::sys::CONFIG_BT_NIMBLE_MAX_CONNECTIONS as _)
+            {
+                ::log::info!("Multi-connect support: start advertising");
+                advertiser.lock().start().unwrap();
+            }
         });
 
         EspServer {
