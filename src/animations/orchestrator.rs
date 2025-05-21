@@ -11,9 +11,10 @@ use crate::{
 };
 use anyhow::Result;
 use ble::Characteristic;
-use futures::channel::mpsc::{self, Receiver};
+use futures::channel::mpsc::{self};
 use futures::StreamExt;
-use micropb::{MessageDecode, PbDecoder};
+use micropb::MessageEncode;
+use micropb::{MessageDecode, PbDecoder, PbEncoder};
 
 pub struct AnimationsOrchestrator<S, T>
 where
@@ -59,8 +60,16 @@ where
         self.devices_syncer.init().await;
         self.animation_thread.send(Message::Init(1)).unwrap();
 
-        self.animation_characteristic.send_value(&[0]);
-        self.bpm_characteristic.send_value(&[0]);
+        let base_anim = SetAnimation::default();
+        let mut encoder = PbEncoder::new(Vec::new());
+        base_anim.encode(&mut encoder).unwrap();
+        self.animation_characteristic
+            .send_value(&encoder.into_writer());
+
+        let base_bpm = SetBPM::default();
+        let mut encoder = PbEncoder::new(Vec::new());
+        base_bpm.encode(&mut encoder).unwrap();
+        self.bpm_characteristic.send_value(&encoder.into_writer());
 
         let animation_thread_clone = self.animation_thread.clone();
         self.devices_syncer.set_state_update_callback(move |state| {
