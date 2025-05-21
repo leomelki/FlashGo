@@ -6,7 +6,7 @@ pub trait Leds: Send + Sync {
     fn update(&mut self, colors: [Color; LED_COUNT]) -> Result<()>;
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Eq)]
 pub struct Color {
     pub red: u8,
     pub green: u8,

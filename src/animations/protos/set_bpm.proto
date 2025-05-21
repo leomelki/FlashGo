@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package bpm;
+
+message SetBPM {
+    int32 bpm = 1;
+}

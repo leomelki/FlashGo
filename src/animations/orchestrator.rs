@@ -3,6 +3,8 @@ use crate::drivers::driver;
 use crate::drivers::sync::SyncTrait;
 use crate::protos::animations_::list_::rainbow_::RainbowAnimation;
 use crate::protos::animations_::{SetAnimation, SetAnimation_};
+use crate::protos::bpm_::SetBPM;
+use crate::sync::PartialDeviceState;
 use crate::{
     drivers::ble,
     leds::animations::thread::{messages::Message, AnimationThread},
@@ -13,14 +15,25 @@ use ble::Characteristic;
 use micropb::{MessageDecode, MessageEncode, PbDecoder, PbEncoder};
 use std::vec::Vec;
 
-pub struct AnimationsOrchestrator<S: Service, T: SyncTrait + 'static> {
+pub struct AnimationsOrchestrator<S, T>
+where
+    S: Service,
+    <S as Service>::Characteristic: Send + Sync + 'static,
+    T: SyncTrait + Send + Sync + 'static,
+{
     animation_characteristic: <S as Service>::Characteristic,
+    bpm_characteristic: <S as Service>::Characteristic,
     animation_thread: AnimationThread,
     devices_syncer: DevicesSyncer<T>,
     master: bool,
 }
 
-impl<S: Service, T: SyncTrait + 'static> AnimationsOrchestrator<S, T> {
+impl<S, T> AnimationsOrchestrator<S, T>
+where
+    S: Service,
+    <S as Service>::Characteristic: Send + Sync + 'static,
+    T: SyncTrait + Send + Sync + 'static,
+{
     pub fn new(
         mut ble_service: S,
         animation_thread: AnimationThread,
@@ -29,76 +42,76 @@ impl<S: Service, T: SyncTrait + 'static> AnimationsOrchestrator<S, T> {
         let animation_characteristic =
             ble_service.register_characteristic("animation", true, true)?;
 
-        {
-            let animation_thread_clone = animation_thread.clone();
-            animation_characteristic.set_callback(move |value| {
-                log::info!("AnimationOrchestrator received animation: {:?}", value);
-                let mut set_animation = SetAnimation::default();
-                let mut decoder = PbDecoder::new(value);
-                set_animation.decode(&mut decoder, value.len()).unwrap();
+        let bpm_characteristic = ble_service.register_characteristic("bpm", true, true)?;
 
-                animation_thread_clone.send(Message::SetAnimation(set_animation))?;
-                Ok(())
-            });
-        }
-
-        Ok(Self {
+        let orchestrator = Self {
             animation_characteristic,
+            bpm_characteristic,
             animation_thread,
             devices_syncer,
             master: driver::is_master(),
-        })
+        };
+
+        Ok(orchestrator)
     }
 
     pub async fn init(&'static self) -> Result<()> {
         self.devices_syncer.init().await;
         self.animation_thread.send(Message::Init(1)).unwrap();
-        self.set_animation(SetAnimation_::Animation::RainbowAnimation(
-            RainbowAnimation {
-                speed: 1.0,
-                progressive: true,
-            },
-        ))
-        .unwrap();
 
-        {
-            let animation_thread_clone = self.animation_thread.clone();
-            self.devices_syncer.set_state_update_callback(move |state| {
-                // log::info!(
-                //     "AnimationOrchestrator received state with time_offset: {:?}",
-                //     state.time_offset
-                // );
+        let animation_thread_clone = self.animation_thread.clone();
+        self.devices_syncer.set_state_update_callback(move |state| {
+            if animation_thread_clone
+                .send(Message::SetState(state))
+                .is_err()
+            {
+                log::error!("AnimationOrchestrator failed to send animation");
+            }
+        });
 
-                if animation_thread_clone
-                    .send(Message::SetAnimation(SetAnimation {
-                        animation: Some(state.animation.clone()),
-                    }))
-                    .is_err()
-                {
-                    log::error!("AnimationOrchestrator failed to send animation");
-                }
-            });
-        }
+        self.animation_characteristic.set_callback(move |value| {
+            let mut set_animation = SetAnimation::default();
+            let mut decoder = PbDecoder::new(value);
 
+            if let Err(e) = set_animation.decode(&mut decoder, value.len()) {
+                log::error!("AnimationOrchestrator received invalid animation: {:?}", e);
+                return Ok(());
+            }
+
+            if let Some(animation) = set_animation.animation {
+                log::info!(
+                    "AnimationOrchestrator received BLE animation: {:?}",
+                    animation
+                );
+
+                self.devices_syncer
+                    .partial_state_update(&PartialDeviceState {
+                        animation: Some(animation),
+                        ..Default::default()
+                    });
+            } else {
+                log::error!("AnimationOrchestrator received invalid animation (no animation)");
+            }
+            Ok(())
+        });
+
+        self.bpm_characteristic.set_callback(move |value| {
+            let mut set_bpm = SetBPM::default();
+            let mut decoder = PbDecoder::new(value);
+            set_bpm.decode(&mut decoder, value.len()).unwrap();
+
+            log::info!("AnimationOrchestrator received BLE bpm: {:?}", set_bpm);
+            self.devices_syncer
+                .partial_state_update(&PartialDeviceState {
+                    bpm: Some(set_bpm.bpm as u16),
+                    ..Default::default()
+                });
+            Ok(())
+        });
         if self.master {
             self.init_master_orchestrator().await;
         }
 
-        Ok(())
-    }
-
-    pub fn set_animation(&self, animation: SetAnimation_::Animation) -> Result<()> {
-        let set_animation = SetAnimation {
-            animation: Some(animation),
-        };
-
-        let mut encoder = PbEncoder::new(Vec::new());
-        set_animation.encode(&mut encoder).unwrap();
-        let data = encoder.into_writer();
-        self.animation_characteristic.send_value(&data);
-
-        self.animation_thread
-            .send(Message::SetAnimation(set_animation))?;
         Ok(())
     }
 

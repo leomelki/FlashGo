@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package utils;
+message StaticColor {
+    uint32 rgb = 1;
+}
+
+enum ColorType {
+    STATIC = 0;
+    RAINBOW = 1;
+    RANDOM = 2;
+    SYNC_RANDOM = 3;
+}
+
+message Color {
+    ColorType type = 1;
+    StaticColor color = 2;
+}

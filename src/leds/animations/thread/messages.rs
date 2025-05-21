@@ -1,7 +1,6 @@
-use crate::protos::animations_::SetAnimation;
+use crate::sync::DevicesSyncerState;
 
 pub enum Message {
     Init(u8),
-    SetAnimation(SetAnimation),
-    Stop,
+    SetState(DevicesSyncerState),
 }

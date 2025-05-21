@@ -1,0 +1,5 @@
+syntax = "proto3";
+
+package animations.list.bpm_color;
+message BPMColorAnimation {
+}

@@ -33,19 +33,27 @@ impl LedsController {
     pub fn set_color(&mut self, x: usize, y: usize, color: Color) {
         let final_y = 7 - y;
         let final_x = 7 - if y % 2 == 0 { x } else { 7 - x };
-        self.colors[final_x + final_y * 8] = color;
-        self.changed = true;
+        if self.colors[final_x + final_y * 8] != color {
+            self.colors[final_x + final_y * 8] = color;
+            self.changed = true;
+        }
     }
     pub fn set_color_by_index(&mut self, index: usize, color: Color) {
-        self.colors[index].set(&color);
-        self.changed = true;
+        if self.colors[index] != color {
+            self.colors[index].set(&color);
+            self.changed = true;
+        }
     }
 
     pub fn set_all_colors(&mut self, color: Color) {
+        let mut changed = false;
         for i in 0..LED_COUNT {
-            self.colors[i] = color;
+            if self.colors[i] != color {
+                changed = true;
+                self.colors[i] = color;
+            }
         }
-        self.changed = true;
+        self.changed = changed;
     }
 
     pub fn get_colors(&self) -> &[Color; LED_COUNT] {

@@ -6,6 +6,8 @@ use super::leds::Leds;
 use super::mic::Mic;
 use super::sync::SyncTrait;
 use anyhow::Result;
+use rand::RngCore;
+use rand::SeedableRng;
 
 #[cfg(feature = "wasm")]
 pub type Instant = web_time::Instant;
@@ -74,12 +76,12 @@ pub fn is_master() -> bool {
 }
 
 pub fn random_u32() -> u32 {
-    #[cfg(feature = "esp")]
-    let rng = rand::random::<u32>();
-    #[cfg(feature = "wasm")]
-    let rng = (wasm_bindgen_futures::js_sys::Math::random() * u32::MAX as f64) as u32;
+    rand::random::<u32>()
+}
 
-    rng
+pub fn random_u32_seeded(seed: u64) -> u32 {
+    let mut rng = rand::rngs::StdRng::seed_from_u64(seed);
+    rng.next_u32()
 }
 
 pub async fn run_async(task: impl Future<Output = Result<()>> + 'static) {

@@ -2,35 +2,57 @@ use anyhow::Result;
 
 use crate::{
     drivers::leds::{Color, Leds},
-    leds::{animations::DynAnimation, controller::LedsController},
-    protos::animations_::SetAnimation,
+    leds::controller::LedsController,
+    protos::animations_::{
+        list_::rainbow_::RainbowAnimation,
+        SetAnimation_::{self},
+    },
+    sync::DevicesSyncerState,
 };
 
-use super::{get_animation, state::AnimationState, thread::messages::Message};
+use super::thread::messages::Message;
+use crate::leds::animations::Animation;
 
 pub struct AnimationController<L> {
-    current: Option<Box<dyn DynAnimation>>,
+    // current: SetAnimation_::Animation,
     leds_controller: LedsController,
     leds: L,
+    state: DevicesSyncerState,
 }
 
 impl<L: Leds> AnimationController<L> {
     pub fn new(leds: L) -> Self {
         Self {
-            current: None,
             leds_controller: LedsController::new().unwrap(),
             leds,
+            state: DevicesSyncerState::default(),
         }
     }
 
     pub fn tick(&mut self) -> Result<()> {
-        let mut state = AnimationState::new();
-        state.update();
-        if let Some(animation) = &mut self.current {
-            animation.tick(&state, &mut self.leds_controller);
-        }
+        self.tick_animation();
         self.leds_controller.update(&mut self.leds)?;
         Ok(())
+    }
+
+    fn tick_animation(&mut self) {
+        match &self.state.animation {
+            SetAnimation_::Animation::RainbowAnimation(rainbow) => {
+                rainbow.tick(&self.state, &mut self.leds_controller)
+            }
+            SetAnimation_::Animation::StrobeAnimation(strobe) => {
+                strobe.tick(&self.state, &mut self.leds_controller)
+            }
+            SetAnimation_::Animation::RandomBlinkAnimation(random_blink) => {
+                random_blink.tick(&self.state, &mut self.leds_controller)
+            }
+            SetAnimation_::Animation::WaveAnimation(wave) => {
+                wave.tick(&self.state, &mut self.leds_controller)
+            }
+            SetAnimation_::Animation::BpmColorAnimation(bpm_color) => {
+                bpm_color.tick(&self.state, &mut self.leds_controller)
+            }
+        }
     }
     pub fn handle_message(&mut self, message: Message) {
         match message {
@@ -39,22 +61,10 @@ impl<L: Leds> AnimationController<L> {
                 self.leds_controller.set_color(0, 0, Color::green());
                 self.leds_controller.update(&mut self.leds).unwrap();
             }
-            Message::SetAnimation(set_animation) => {
+            Message::SetState(state) => {
                 // log::info!("AnimationController set animation");
-                self.set_animation(set_animation);
-            }
-            Message::Stop => {
-                log::info!("AnimationController stop");
-                self.stop();
+                self.state = state;
             }
         }
-    }
-
-    pub fn set_animation(&mut self, set_animation: SetAnimation) {
-        self.current = get_animation(set_animation);
-    }
-
-    pub fn stop(&mut self) {
-        self.current = None;
     }
 }

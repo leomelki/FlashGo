@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package animations.list.wave;
+
+import "utils/utils.proto";
+
+message WaveAnimation {
+    bool sync = 1;
+    int32 speed = 2;
+    utils.Color color = 3;
+    float min_intensity = 4;
+    float max_intensity = 5;
+}
