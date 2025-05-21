@@ -58,13 +58,6 @@ where
     pub async fn init(&'static self) -> Result<()> {
         self.devices_syncer.init().await;
         self.animation_thread.send(Message::Init(1)).unwrap();
-        self.set_animation(SetAnimation_::Animation::RainbowAnimation(
-            RainbowAnimation {
-                speed: 1.0,
-                progressive: true,
-            },
-        ))
-        .unwrap();
 
         let animation_thread_clone = self.animation_thread.clone();
         self.devices_syncer.set_state_update_callback(move |state| {
@@ -119,23 +112,6 @@ where
             self.init_master_orchestrator().await;
         }
 
-        Ok(())
-    }
-
-    pub fn set_animation(&self, animation: SetAnimation_::Animation) -> Result<()> {
-        let set_animation = SetAnimation {
-            animation: Some(animation),
-        };
-
-        let mut encoder = PbEncoder::new(Vec::new());
-        set_animation.encode(&mut encoder).unwrap();
-        let data = encoder.into_writer();
-        self.animation_characteristic.send_value(&data);
-
-        // self.animation_thread
-        //     .send(Message::SetAnimation(set_animation))?;
-
-        //todo
         Ok(())
     }
 
