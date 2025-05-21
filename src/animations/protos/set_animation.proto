@@ -6,12 +6,13 @@ import "animations/protos/animations/rainbow.proto";
 import "animations/protos/animations/strobe.proto";
 import "animations/protos/animations/random_blink.proto";
 import "animations/protos/animations/wave.proto";
-
+import "animations/protos/animations/bpm_color.proto";
 message SetAnimation {
     oneof animation {
         list.rainbow.RainbowAnimation rainbow_animation = 1;
         list.strobe.StrobeAnimation strobe_animation = 2;
         list.random_blink.RandomBlinkAnimation random_blink_animation = 3;
         list.wave.WaveAnimation wave_animation = 4;
+        list.bpm_color.BPMColorAnimation bpm_color_animation = 5;
     }
 }

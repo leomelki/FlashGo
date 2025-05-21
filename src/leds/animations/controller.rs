@@ -49,6 +49,9 @@ impl<L: Leds> AnimationController<L> {
             SetAnimation_::Animation::WaveAnimation(wave) => {
                 wave.tick(&self.state, &mut self.leds_controller)
             }
+            SetAnimation_::Animation::BpmColorAnimation(bpm_color) => {
+                bpm_color.tick(&self.state, &mut self.leds_controller)
+            }
         }
     }
     pub fn handle_message(&mut self, message: Message) {

@@ -1,3 +1,4 @@
+mod anim_bpm_color;
 mod anim_rainbow;
 mod anim_random_blink;
 mod anim_strobe;
