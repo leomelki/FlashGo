@@ -1,9 +1,11 @@
 use crate::drivers::ble::Service;
 use crate::drivers::driver;
 use crate::drivers::sync::SyncTrait;
+use crate::protos::animations_::list_::rainbow_::RainbowAnimation;
 use crate::protos::animations_::SetAnimation;
+use crate::protos::animations_::SetAnimation_::Animation;
 use crate::protos::bpm_::SetBPM;
-use crate::sync::PartialDeviceState;
+use crate::sync::{DevicesSyncerState, PartialDeviceState};
 use crate::{
     drivers::ble,
     leds::animations::thread::{messages::Message, AnimationThread},
@@ -60,13 +62,15 @@ where
         self.devices_syncer.init().await;
         self.animation_thread.send(Message::Init(1)).unwrap();
 
-        let base_anim = SetAnimation::default();
+        let mut base_anim = SetAnimation::default();
+        base_anim.animation = Some(DevicesSyncerState::default().animation);
         let mut encoder = PbEncoder::new(Vec::new());
         base_anim.encode(&mut encoder).unwrap();
         self.animation_characteristic
             .send_value(&encoder.into_writer());
 
-        let base_bpm = SetBPM::default();
+        let mut base_bpm = SetBPM::default();
+        base_bpm.bpm = DevicesSyncerState::default().bpm as i32;
         let mut encoder = PbEncoder::new(Vec::new());
         base_bpm.encode(&mut encoder).unwrap();
         self.bpm_characteristic.send_value(&encoder.into_writer());
