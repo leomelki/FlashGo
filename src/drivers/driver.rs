@@ -87,7 +87,7 @@ pub fn random_u32_seeded(seed: u64) -> u32 {
 pub async fn run_async(task: impl Future<Output = Result<()>> + 'static) {
     #[cfg(feature = "esp")]
     {
-        #[embassy_executor::task(pool_size = 4)]
+        #[embassy_executor::task(pool_size = 8)]
         async fn run_task(task: Pin<Box<dyn Future<Output = Result<()>>>>) {
             task.await.unwrap();
         }
