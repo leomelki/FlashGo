@@ -1,9 +1,6 @@
 use crate::{
     consts,
-    drivers::ble::{
-        self, get_uuid as get_generic_uuid, get_uuid_from_name as get_generic_uuid_from_name,
-        UUIDAble,
-    },
+    drivers::ble::{self, UUIDAble},
 };
 use anyhow::Result;
 use esp32_nimble::{
@@ -12,6 +9,7 @@ use esp32_nimble::{
     NimbleProperties,
 };
 use std::sync::Arc;
+use uuid::Uuid;
 
 pub struct EspCharacteristic {
     name: String,
@@ -104,9 +102,9 @@ impl ble::Service for EspService {
             .create_characteristic(get_uuid_from_name(name), properties);
 
         log::info!(
-            "BLE characteristic created: {} ({:?})",
+            "BLE characteristic created: {} ({})",
             name,
-            get_uuid_from_name(name)
+            uuid_to_string(get_uuid_from_name(name))
         );
 
         Ok(EspCharacteristic::new(ble_char, name, is_read, is_write))
@@ -156,9 +154,9 @@ impl ble::Server for EspServer {
         let ble_service = self.server.create_service(get_uuid_from_name(name));
 
         log::info!(
-            "BLE service created: {} ({:?})",
+            "BLE service created: {} ({})",
             name,
-            get_uuid_from_name(name)
+            uuid_to_string(get_uuid_from_name(name))
         );
 
         // Create a new service
@@ -210,9 +208,33 @@ impl Clone for EspService {
 }
 
 fn get_uuid(element: &impl UUIDAble) -> BleUuid {
-    BleUuid::from_uuid128(*get_generic_uuid(element).as_bytes())
+    get_uuid_from_name(element.get_name())
 }
 
 fn get_uuid_from_name(name: &str) -> BleUuid {
-    BleUuid::from_uuid128(*get_generic_uuid_from_name(name).as_bytes())
+    let mut hash: u32 = 5381;
+    for byte in name.bytes() {
+        hash = ((hash << 5).wrapping_add(hash)).wrapping_add(byte as u32);
+    }
+    BleUuid::from_uuid32(hash)
+}
+
+pub fn uuid_to_string(uuid: BleUuid) -> String {
+    let base_ble_uuid = [
+        0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00,
+    ];
+
+    match uuid {
+        BleUuid::Uuid32(uuid) => {
+            let mut uuid128 = base_ble_uuid;
+
+            let mut uuid_as_bytes: [u8; 4] = uuid.to_be_bytes();
+            uuid_as_bytes.reverse();
+
+            uuid128[12..=15].copy_from_slice(&uuid_as_bytes[..]);
+            format!("{:?}", Uuid::from_bytes(uuid128))
+        }
+        _ => panic!("Unsupported UUID type"),
+    }
 }

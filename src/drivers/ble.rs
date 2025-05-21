@@ -27,11 +27,3 @@ pub trait Server {
 pub trait UUIDAble {
     fn get_name(&self) -> &str;
 }
-
-pub fn get_uuid(element: &impl UUIDAble) -> Uuid {
-    Uuid::new_v5(&Uuid::NAMESPACE_X500, element.get_name().as_bytes())
-}
-
-pub fn get_uuid_from_name(name: &str) -> Uuid {
-    Uuid::new_v5(&Uuid::NAMESPACE_X500, name.as_bytes())
-}
