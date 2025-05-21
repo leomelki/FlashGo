@@ -28,14 +28,19 @@ async fn main(spawner: embassy_executor::Spawner) {
 #[cfg(feature = "esp")]
 #[embassy_executor::task]
 async fn init_esp() {
+    // It is necessary to call this function once. Otherwise some patches to the runtime
+    // implemented by esp-idf-sys might not link properly. See https://github.com/esp-rs/esp-idf-template/issues/71
+    esp_idf_svc::sys::link_patches();
+
+    // Bind the log crate to the ESP Logging facilities
+    esp_idf_svc::log::EspLogger::initialize_default();
     init().await.unwrap();
 }
 
 async fn init() -> Result<()> {
+    let mut ble_server = driver::create_ble_server();
     let (leds, mic, sync) = crate::drivers::driver::create_drivers().await.unwrap();
     log::info!("Starting ESP32");
-
-    let mut ble_server = driver::create_ble_server();
 
     let animation_thread = AnimationThread::init(leds).await;
 
@@ -54,6 +59,7 @@ async fn init() -> Result<()> {
     animation_orchestrator.init().await?;
 
     ble_server.start_advertisement();
+    println!("Advertising started");
 
     loop {
         // mic_reader.read_buffer_process().await?;

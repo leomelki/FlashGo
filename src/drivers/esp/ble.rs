@@ -99,12 +99,12 @@ impl ble::Service for EspService {
         let ble_char = self
             .ble_service
             .lock()
-            .create_characteristic(get_uuid_from_name(name), properties);
+            .create_characteristic(get_uuid_128_from_name(name), properties);
 
         log::info!(
             "BLE characteristic created: {} ({})",
             name,
-            uuid_to_string(get_uuid_from_name(name))
+            get_uuid_128_from_name(name)
         );
 
         Ok(EspCharacteristic::new(ble_char, name, is_read, is_write))
@@ -129,15 +129,15 @@ impl ble::Server for EspServer {
         server.on_connect(|server, desc| {
             log::info!("Client connected: {:?}", desc);
 
-            server
-                .update_conn_params(desc.conn_handle(), 24, 48, 0, 60)
-                .unwrap();
+            // server
+            //     .update_conn_params(desc.conn_handle(), 24, 48, 0, 60)
+            //     .unwrap();
 
-            if server.connected_count() < (esp_idf_svc::sys::CONFIG_BT_NIMBLE_MAX_CONNECTIONS as _)
-            {
-                ::log::info!("Multi-connect support: start advertising");
-                advertiser.lock().start().unwrap();
-            }
+            // if server.connected_count() < (esp_idf_svc::sys::CONFIG_BT_NIMBLE_MAX_CONNECTIONS as _)
+            // {
+            //     ::log::info!("Multi-connect support: start advertising");
+            //     advertiser.lock().start().unwrap();
+            // }
         });
 
         EspServer {
@@ -156,7 +156,7 @@ impl ble::Server for EspServer {
         log::info!(
             "BLE service created: {} ({})",
             name,
-            uuid_to_string(get_uuid_from_name(name))
+            get_uuid_from_name(name)
         );
 
         // Create a new service
@@ -173,16 +173,16 @@ impl ble::Server for EspServer {
 
         // Add service UUIDs to advertisement
         for service in &self.services {
+            println!("Adding service UUID: {}", get_uuid(service));
             adv_data = adv_data.add_service_uuid(get_uuid(service));
         }
-        if self.advertising_started {
-            self.advertiser.lock().reset().unwrap();
-        }
+        let mut adv = self.advertiser.lock();
 
-        self.advertiser.lock().set_data(adv_data).unwrap();
+        adv.scan_response(true);
+        adv.set_data(adv_data).unwrap();
 
         // Start advertising if not already started
-        self.advertiser.lock().start().unwrap();
+        adv.start().unwrap();
         self.advertising_started = true;
     }
 }
@@ -206,6 +206,13 @@ impl Clone for EspService {
         }
     }
 }
+fn get_uuid128(element: &impl UUIDAble) -> BleUuid {
+    get_uuid_128_from_name(element.get_name())
+}
+
+fn get_uuid_128_from_name(name: &str) -> BleUuid {
+    BleUuid::from_uuid128(*Uuid::new_v5(&Uuid::NAMESPACE_X500, name.as_bytes()).as_bytes())
+}
 
 fn get_uuid(element: &impl UUIDAble) -> BleUuid {
     get_uuid_from_name(element.get_name())
@@ -217,24 +224,4 @@ fn get_uuid_from_name(name: &str) -> BleUuid {
         hash = ((hash << 5).wrapping_add(hash)).wrapping_add(byte as u32);
     }
     BleUuid::from_uuid32(hash)
-}
-
-pub fn uuid_to_string(uuid: BleUuid) -> String {
-    let base_ble_uuid = [
-        0xfb, 0x34, 0x9b, 0x5f, 0x80, 0x00, 0x00, 0x80, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00,
-    ];
-
-    match uuid {
-        BleUuid::Uuid32(uuid) => {
-            let mut uuid128 = base_ble_uuid;
-
-            let mut uuid_as_bytes: [u8; 4] = uuid.to_be_bytes();
-            uuid_as_bytes.reverse();
-
-            uuid128[12..=15].copy_from_slice(&uuid_as_bytes[..]);
-            format!("{:?}", Uuid::from_bytes(uuid128))
-        }
-        _ => panic!("Unsupported UUID type"),
-    }
 }
