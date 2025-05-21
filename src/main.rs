@@ -42,6 +42,8 @@ async fn init() -> Result<()> {
         DevicesSyncer::new(sync),
     )?));
 
+    ble_server.register_service("identity-flashgo-v1")?;
+
     let mut mic_reader = mic::mic_reader::MicReader::new(mic);
 
     animation_orchestrator.init().await?;
